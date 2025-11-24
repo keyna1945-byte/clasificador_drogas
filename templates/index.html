@@ -19,6 +19,7 @@
             max-width: 400px;
             border-radius: 15px;
             margin-top: 10px;
+            display: none;
         }
 
         canvas {
@@ -40,11 +41,15 @@
 
 <h2>📸 Clasificador de drogas</h2>
 
+<p id="mensaje">Presioná el botón para activar la cámara</p>
+
+<button onclick="activarCamara()">📷 Usar cámara</button>
+
 <video id="video" autoplay playsinline></video>
 <canvas id="canvas"></canvas>
 
 <br>
-<button onclick="tomarFoto()">📷 Capturar</button>
+<button onclick="tomarFoto()" id="btnFoto" style="display:none;">📸 Capturar</button>
 
 <form id="formImagen" method="POST" action="/analizar" enctype="multipart/form-data">
     <input type="hidden" name="imagen" id="imagenInput">
@@ -52,26 +57,25 @@
 
 <script>
 const video = document.getElementById("video");
+const btnFoto = document.getElementById("btnFoto");
+const mensaje = document.getElementById("mensaje");
 
-// ACTIVAR CÁMARA TRASERA
-navigator.mediaDevices.getUserMedia({
-    video: { facingMode: { exact: "environment" } },
-    audio: false
-})
-.then(stream => {
-    video.srcObject = stream;
-})
-.catch(err => {
-    console.error("No se pudo acceder a la cámara trasera:", err);
-
-    // Si no encuentra la trasera, usa la frontal
+function activarCamara() {
     navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user" },
+        video: { facingMode: { ideal: "environment" } },
         audio: false
-    }).then(stream => {
+    })
+    .then(stream => {
         video.srcObject = stream;
+        video.style.display = "block";
+        btnFoto.style.display = "inline-block";
+        mensaje.innerText = "Cámara activada";
+    })
+    .catch(err => {
+        alert("No se pudo acceder a la cámara");
+        console.error(err);
     });
-});
+}
 
 function tomarFoto() {
     const canvas = document.getElementById("canvas");
