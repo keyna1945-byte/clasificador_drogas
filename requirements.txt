@@ -1,5 +1,3 @@
 flask
 gunicorn
 pandas
-sqlite3
-requests
