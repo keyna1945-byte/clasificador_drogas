@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Agregar Nueva Sustancia</h2>
+<form method="POST">
+  <div class="mb-3">
+    <label class="form-label">Número</label>
+    <input type="number" name="numero" class="form-control" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Nombre</label>
+    <input type="text" name="nombre" class="form-control" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Peligros</label>
+    <input type="text" name="peligros" class="form-control">
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Cancerígeno</label>
+    <input type="text" name="cancerigeno" class="form-control">
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Cantidad Disponible</label>
+    <input type="text" name="cantidad" class="form-control">
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Ubicación</label>
+    <input type="text" name="ubicacion" class="form-control">
+  </div>
+  <button type="submit" class="btn btn-success">Guardar</button>
+  <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

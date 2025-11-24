@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Editar droga</h2>
+    <form method="POST">
+        <div class="mb-3">
+            <label>Ubicación</label>
+            <input type="text" name="ubicacion" value="{{ droga.ubicacion or '' }}" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label>Nombre</label>
+            <input type="text" name="nombre" value="{{ droga.nombre }}" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label>Número</label>
+            <input type="number" name="numero" value="{{ droga.numero or '' }}" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label>Cantidad</label>
+            <input type="text" name="cantidad" value="{{ droga.cantidad or '' }}" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label>Peligros</label>
+            <input type="text" name="peligros" value="{{ droga.peligros or '' }}" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label>Cancerígeno</label>
+            <input type="text" name="cancerigeno" value="{{ droga.cancerigeno or '' }}" class="form-control">
+        </div>
+        <button type="submit" class="btn btn-success">Guardar cambios</button>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">Volver</a>
+    </form>
+</div>
+{% endblock %}
