@@ -1,161 +1,93 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Clasificador de drogas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-{% block content %}
-<h1 class="mb-2">Clasificador de Sustancias</h1>
-<p class="text-muted mb-4">Administrá y controlá sustancias químicas registradas en el sistema.</p>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #111;
+            color: white;
+            text-align: center;
+            padding: 10px;
+        }
 
-<!-- Formulario de búsqueda -->
-<form method="GET" action="{{ url_for('index') }}" class="mb-4">
-  <div class="input-group">
-    <input type="text" name="busqueda" class="form-control" 
-           placeholder="Buscar por nombre, número, peligros, cantidad o ubicación"
-           value="{{ request.args.get('busqueda', '') }}">
-    <button class="btn btn-outline-primary" type="submit">
-      <i class="bi bi-search"></i> Buscar
-    </button>
-  </div>
+        video {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 15px;
+            margin-top: 10px;
+        }
+
+        canvas {
+            display: none;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: none;
+            background: #00bfff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<h2>📸 Clasificador de drogas</h2>
+
+<video id="video" autoplay playsinline></video>
+<canvas id="canvas"></canvas>
+
+<br>
+<button onclick="tomarFoto()">📷 Capturar</button>
+
+<form id="formImagen" method="POST" action="/analizar" enctype="multipart/form-data">
+    <input type="hidden" name="imagen" id="imagenInput">
 </form>
 
-<!-- Botones principales -->
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <div>
-    <a href="{{ url_for('agregar') }}" class="btn btn-success">
-      <i class="bi bi-plus-circle"></i> Agregar Sustancia
-    </a>
-
-    <a href="{{ url_for('exportar_excel') }}" class="btn btn-outline-secondary ms-2">
-      <i class="bi bi-file-earmark-excel"></i> Exportar a Excel
-    </a>
-  </div>
-</div>
-
-<!-- Tabla -->
-<div class="table-responsive">
-  <table class="table table-bordered table-hover align-middle">
-    <thead class="table-dark">
-      <tr>
-        <th>Número</th>
-        <th>Nombre</th>
-        <th>Peligros</th>
-        <th>Cancerígeno</th>
-        <th>Cantidad</th>
-        <th>Ubicación</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% if drogas %}
-        {% for droga in drogas %}
-        <tr>
-          <td>{{ droga.numero }}</td>
-          <td>{{ droga.nombre }}</td>
-          <td>{{ droga.peligros }}</td>
-          <td>{{ droga.cancerigeno }}</td>
-          <td>{{ droga.cantidad }}</td>
-          <td>{{ droga.ubicacion }}</td>
-          <td>
-            <a href="{{ url_for('editar', id=droga.id) }}" class="btn btn-warning btn-sm">
-              <i class="bi bi-pencil"></i> Editar
-            </a>
-            <a href="{{ url_for('eliminar', id=droga.id) }}" class="btn btn-danger btn-sm"
-               onclick="return confirm('¿Estás seguro de eliminar esta sustancia?');">
-              <i class="bi bi-trash"></i> Eliminar
-            </a>
-          </td>
-        </tr>
-        {% endfor %}
-      {% else %}
-        <tr>
-          <td colspan="7" class="text-center text-muted">No hay sustancias registradas aún.</td>
-        </tr>
-      {% endif %}
-    </tbody>
-  </table>
-</div>
-
-<hr>
-
-<h3>📸 Detección de texto en etiquetas</h3>
-<p class="text-muted">Podés usar tu cámara trasera o subir una imagen desde tu dispositivo.</p>
-
-<div class="row">
-  <div class="col-md-6 mb-3">
-
-    <!-- Subir imagen -->
-    <form action="{{ url_for('detectar_texto') }}" method="post" enctype="multipart/form-data">
-      <label class="form-label fw-bold">Subir imagen</label>
-      <input type="file" name="image" class="form-control mb-2" accept="image/*" required>
-      <button type="submit" class="btn btn-primary w-100">
-        <i class="bi bi-upload"></i> Subir y detectar
-      </button>
-    </form>
-
-  </div>
-
-  <div class="col-md-6 mb-3">
-
-    <!-- Usar cámara -->
-    <label class="form-label fw-bold">Usar cámara</label>
-    <button class="btn btn-outline-primary w-100" id="abrirCamara">
-      <i class="bi bi-camera"></i> Abrir cámara trasera
-    </button>
-
-  </div>
-</div>
-
-<!-- Vista previa cámara -->
-<div id="contenedorCamara" class="mt-3 text-center" style="display:none;">
-  <video id="video" autoplay playsinline class="border rounded" style="width:100%; max-width:400px;"></video><br>
-  <button id="capturar" class="btn btn-success mt-3">
-    <i class="bi bi-check2-circle"></i> Capturar y detectar texto
-  </button>
-  <canvas id="canvas" style="display:none;"></canvas>
-</div>
-
 <script>
-const abrirCamara = document.getElementById('abrirCamara');
-const contenedorCamara = document.getElementById('contenedorCamara');
-const video = document.getElementById('video');
-const canvas = document.getElementById('canvas');
-const capturar = document.getElementById('capturar');
+const video = document.getElementById("video");
 
-abrirCamara.addEventListener('click', async () => {
-  contenedorCamara.style.display = 'block';
-
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: "environment" } } // CAMARA TRASERA
-    });
-
+// ACTIVAR CÁMARA TRASERA
+navigator.mediaDevices.getUserMedia({
+    video: { facingMode: { exact: "environment" } },
+    audio: false
+})
+.then(stream => {
     video.srcObject = stream;
-  } catch (error) {
-    alert("No se pudo acceder a la cámara: " + error);
-  }
+})
+.catch(err => {
+    console.error("No se pudo acceder a la cámara trasera:", err);
+
+    // Si no encuentra la trasera, usa la frontal
+    navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user" },
+        audio: false
+    }).then(stream => {
+        video.srcObject = stream;
+    });
 });
 
-capturar.addEventListener('click', async () => {
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
+function tomarFoto() {
+    const canvas = document.getElementById("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
 
-  const context = canvas.getContext('2d');
-  context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-  const imagenBase64 = canvas.toDataURL('image/png');
+    const imagen = canvas.toDataURL("image/png");
+    document.getElementById("imagenInput").value = imagen;
 
-  const response = await fetch('{{ url_for("detectar_texto") }}', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ imagen_base64: imagenBase64 })
-  });
-
-  const data = await response.json();
-
-  if (data.texto_detectado) {
-    alert("Texto detectado:\n\n" + data.texto_detectado);
-  } else {
-    alert("No se detectó texto en la imagen");
-  }
-});
+    document.getElementById("formImagen").submit();
+}
 </script>
 
-{% endblock %}
+</body>
+</html>
+
