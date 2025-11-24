@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Clasificador de drogas</title>
+    <title>Clasificador de Sustancias</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
@@ -10,88 +10,211 @@
             font-family: Arial, sans-serif;
             background: #111;
             color: white;
-            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 5px;
+        }
+
+        .buscador {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            width: 100%;
             padding: 10px;
+            border-radius: 8px;
+            border: none;
+        }
+
+        button, .btn {
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: none;
+            background-color: #00bfff;
+            color: white;
+            cursor: pointer;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .acciones {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: #1a1a1a;
+        }
+
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #333;
+            text-align: left;
+        }
+
+        th {
+            background: #222;
+        }
+
+        .editar {
+            background: orange;
+        }
+
+        .eliminar {
+            background: red;
         }
 
         video {
+            margin-top: 20px;
             width: 100%;
-            max-width: 400px;
-            border-radius: 15px;
-            margin-top: 10px;
+            max-width: 350px;
             display: none;
+            border-radius: 15px;
         }
 
         canvas {
             display: none;
         }
 
-        button {
-            margin-top: 15px;
-            padding: 10px 20px;
-            font-size: 16px;
-            border-radius: 10px;
-            border: none;
-            background: #00bfff;
-            color: white;
+        .mensaje {
+            margin-top: 10px;
+            color: #00ffcc;
         }
+
     </style>
 </head>
 <body>
 
-<h2>📸 Clasificador de drogas</h2>
+<h1>🧪 Clasificador de Sustancias</h1>
+<p>Administrá y controlá sustancias químicas registradas en el sistema.</p>
 
-<p id="mensaje">Presioná el botón para activar la cámara</p>
+{% with mensajes = get_flashed_messages() %}
+  {% if mensajes %}
+    <div class="mensaje">
+      {% for msg in mensajes %}
+        <p>{{ msg }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
 
-<button onclick="activarCamara()">📷 Usar cámara</button>
+<form class="buscador" method="get" action="/">
+    <input type="text" name="busqueda" placeholder="Buscar por nombre, peligros, cantidad o ubicación..."
+           value="{{ busqueda }}">
+    <button type="submit">🔍 Buscar</button>
+</form>
+
+<div class="acciones">
+    <a class="btn" href="/agregar">➕ Agregar Sustancia</a>
+    <a class="btn" href="/exportar_excel">📄 Exportar a Excel</a>
+    <button onclick="activarCamara()">📸 Usar cámara</button>
+</div>
 
 <video id="video" autoplay playsinline></video>
 <canvas id="canvas"></canvas>
 
-<br>
-<button onclick="tomarFoto()" id="btnFoto" style="display:none;">📸 Capturar</button>
+<table>
+    <tr>
+        <th>Número</th>
+        <th>Nombre</th>
+        <th>Peligros</th>
+        <th>Cancerígeno</th>
+        <th>Cantidad</th>
+        <th>Ubicación</th>
+        <th>Acciones</th>
+    </tr>
 
-<form id="formImagen" method="POST" action="/analizar" enctype="multipart/form-data">
-    <input type="hidden" name="imagen" id="imagenInput">
+    {% for d in drogas %}
+    <tr>
+        <td>{{ d.numero }}</td>
+        <td>{{ d.nombre }}</td>
+        <td>{{ d.peligros }}</td>
+        <td>{{ d.cancerigeno }}</td>
+        <td>{{ d.cantidad }}</td>
+        <td>{{ d.ubicacion }}</td>
+        <td>
+            <a href="/editar/{{ d.id }}" class="btn editar">✏️</a>
+            <a href="/eliminar/{{ d.id }}" class="btn eliminar"
+               onclick="return confirm('¿Estás segura/o de eliminar esta sustancia?')">🗑️</a>
+        </td>
+    </tr>
+    {% else %}
+    <tr>
+        <td colspan="7">No hay sustancias registradas.</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<form id="formCamara" method="POST" action="/detectar_texto" enctype="multipart/form-data">
+    <input type="file" name="image" id="imagenInput" style="display: none;">
 </form>
 
 <script>
 const video = document.getElementById("video");
-const btnFoto = document.getElementById("btnFoto");
-const mensaje = document.getElementById("mensaje");
+	let streamGlobal = null;
 
 function activarCamara() {
+    video.style.display = "block";
+
     navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: "environment" } },
+        video: { facingMode: { exact: "environment" } },
         audio: false
     })
     .then(stream => {
+        streamGlobal = stream;
         video.srcObject = stream;
-        video.style.display = "block";
-        btnFoto.style.display = "inline-block";
-        mensaje.innerText = "Cámara activada";
     })
     .catch(err => {
-        alert("No se pudo acceder a la cámara");
-        console.error(err);
+        navigator.mediaDevices.getUserMedia({
+            video: { facingMode: "user" },
+            audio: false
+        }).then(stream => {
+            streamGlobal = stream;
+            video.srcObject = stream;
+        });
     });
 }
 
-function tomarFoto() {
+// Sacar foto al tocar el video
+video.addEventListener("click", () => {
+
     const canvas = document.getElementById("canvas");
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
     const ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(video, 0, 0);
 
-    const imagen = canvas.toDataURL("image/png");
-    document.getElementById("imagenInput").value = imagen;
+    canvas.toBlob(blob => {
+        const file = new File([blob], "captura.png", { type: "image/png" });
+        const input = document.getElementById("imagenInput");
 
-    document.getElementById("formImagen").submit();
-}
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+
+        input.files = dataTransfer.files;
+
+        document.getElementById("formCamara").submit();
+    });
+
+    if (streamGlobal) {
+        streamGlobal.getTracks().forEach(track => track.stop());
+        video.style.display = "none";
+    }
+
+});
 </script>
 
 </body>
 </html>
+
 
