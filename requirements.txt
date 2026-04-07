@@ -2,4 +2,4 @@ flask
 pandas
 openpyxl
 requests
-guanicorns
+guanicorn
