@@ -1,19 +1,27 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, send_file, jsonify
+
+    from flask import Flask, render_template, request, redirect, url_for, flash, send_file, jsonify
 import sqlite3
 import pandas as pd
 import os
 import base64
 import requests
+from io import BytesIO
 
 app = Flask(__name__)
 app.secret_key = "clave_secreta"
 
 # --- Configurar tu clave de Google Vision ---
-API_KEY = os.getenv("GOOGLE_API_KEY") or "TU_API_KEY_AQUI"  # reemplazá por tu clave si querés probar directo
+API_KEY = os.getenv("GOOGLE_API_KEY") or "TU_API_KEY_AQUI"
 
-# --- Conexión a la base de datos ---
+# --- Conexión a la base de datos (FIX PARA RENDER) ---
 def conectar_db():
-    ruta_db = os.path.join(os.path.dirname(__file__), "sustancias.db")
+    # Usa almacenamiento persistente en Render
+    ruta_db = "/var/data/sustancias.db"
+
+    # Si estás en local (por ejemplo Windows), usa archivo local
+    if not os.path.exists("/var/data"):
+        ruta_db = os.path.join(os.path.dirname(__file__), "sustancias.db")
+
     conn = sqlite3.connect(ruta_db)
     conn.row_factory = sqlite3.Row
     return conn
@@ -34,7 +42,7 @@ def crear_tabla():
         ''')
 crear_tabla()
 
-# --- Página principal: muestra la biblioteca de sustancias ---
+# --- Página principal ---
 @app.route('/')
 def index():
     busqueda = request.args.get('busqueda', '').strip()
@@ -48,11 +56,12 @@ def index():
             """, (f'%{busqueda}%', f'%{busqueda}%', f'%{busqueda}%', f'%{busqueda}%'))
         else:
             cursor = conn.execute("SELECT * FROM drogas ORDER BY nombre ASC")
+
         drogas = cursor.fetchall()
 
     return render_template('index.html', drogas=drogas, busqueda=busqueda)
 
-# --- Agregar nueva sustancia ---
+# --- Agregar ---
 @app.route('/agregar', methods=['GET', 'POST'])
 def agregar():
     if request.method == 'POST':
@@ -75,7 +84,7 @@ def agregar():
 
     return render_template('agregar.html')
 
-# --- Editar sustancia ---
+# --- Editar ---
 @app.route('/editar/<int:id>', methods=['GET', 'POST'])
 def editar(id):
     with conectar_db() as conn:
@@ -100,30 +109,40 @@ def editar(id):
                 WHERE id=?
             """, (ubicacion, nombre, numero, cantidad, peligros, cancerigeno, id))
             conn.commit()
+
             flash("💾 Cambios guardados correctamente.")
             return redirect(url_for('index'))
 
     return render_template('editar.html', droga=droga)
 
-# --- Eliminar sustancia ---
+# --- Eliminar ---
 @app.route('/eliminar/<int:id>')
 def eliminar(id):
     with conectar_db() as conn:
         conn.execute("DELETE FROM drogas WHERE id=?", (id,))
         conn.commit()
+
     flash("🗑️ Sustancia eliminada correctamente.")
     return redirect(url_for('index'))
 
-# --- Exportar a Excel ---
+# --- Exportar Excel (FIX OPENPYXL) ---
 @app.route('/exportar_excel')
 def exportar_excel():
     with conectar_db() as conn:
         df = pd.read_sql_query("SELECT * FROM drogas", conn)
-    ruta_excel = "sustancias_exportadas.xlsx"
-    df.to_excel(ruta_excel, index=False)
-    return send_file(ruta_excel, as_attachment=True)
 
-# --- Detección de texto en imágenes usando Google Vision ---
+    output = BytesIO()
+    df.to_excel(output, index=False, engine='openpyxl')
+    output.seek(0)
+
+    return send_file(
+        output,
+        download_name="sustancias_exportadas.xlsx",
+        as_attachment=True,
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+# --- Detección de texto ---
 @app.route('/detectar_texto', methods=['POST'])
 def detectar_texto():
     if 'image' not in request.files:
@@ -154,6 +173,6 @@ def detectar_texto():
     flash(f"🧠 Texto detectado: {texto}")
     return redirect(url_for('index'))
 
-# --- Iniciar app ---
+# --- Run ---
 if __name__ == '__main__':
     app.run(debug=True)
