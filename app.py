@@ -1,5 +1,4 @@
-
-    from flask import Flask, render_template, request, redirect, url_for, flash, send_file, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, send_file, jsonify
 import sqlite3
 import pandas as pd
 import os
