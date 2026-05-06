@@ -50,9 +50,13 @@ def index():
         if busqueda:
             cursor = conn.execute("""
                 SELECT * FROM drogas 
-                WHERE nombre LIKE ? OR peligros LIKE ? OR ubicacion LIKE ? OR cantidad LIKE ?
+                WHERE CAST(numero AS TEXT) LIKE ?
+                   OR nombre LIKE ?
+                   OR peligros LIKE ?
+                   OR ubicacion LIKE ?
+                   OR cantidad LIKE ?
                 ORDER BY nombre ASC
-            """, (f'%{busqueda}%', f'%{busqueda}%', f'%{busqueda}%', f'%{busqueda}%'))
+            """, (f'%{busqueda}%', f'%{busqueda}%', f'%{busqueda}%', f'%{busqueda}%', f'%{busqueda}%'))
         else:
             cursor = conn.execute("SELECT * FROM drogas ORDER BY nombre ASC")
 
