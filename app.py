@@ -12,14 +12,11 @@ app.secret_key = "clave_secreta"
 # --- Configurar tu clave de Google Vision ---
 API_KEY = os.getenv("GOOGLE_API_KEY") or "TU_API_KEY_AQUI"
 
-# --- Conexión a la base de datos (FIX PARA RENDER) ---
+# --- Conexión a la base de datos ---
 def conectar_db():
-    # Usa almacenamiento persistente en Render
-    ruta_db = "/var/data/sustancias.db"
-
-    # Si estás en local (por ejemplo Windows), usa archivo local
-    if not os.path.exists("/var/data"):
-        ruta_db = os.path.join(os.path.dirname(__file__), "sustancias.db")
+    ruta_local = os.path.join(os.path.dirname(__file__), "sustancias.db")
+    ruta_render = "/var/data/sustancias.db"
+    ruta_db = ruta_render if os.path.isdir("/var/data") and os.access("/var/data", os.W_OK) else ruta_local
 
     conn = sqlite3.connect(ruta_db)
     conn.row_factory = sqlite3.Row
