@@ -64,6 +64,26 @@ def index():
 
     return render_template('index.html', drogas=drogas, busqueda=busqueda)
 
+# --- Ficha desde QR ---
+@app.route('/sustancia/<int:numero>', methods=['GET', 'POST'])
+def ficha_sustancia(numero):
+    with conectar_db() as conn:
+        cursor = conn.execute("SELECT * FROM drogas WHERE numero=?", (numero,))
+        droga = cursor.fetchone()
+
+        if not droga:
+            flash("Sustancia no encontrada.")
+            return redirect(url_for('index'))
+
+        if request.method == 'POST':
+            cantidad = request.form.get('cantidad', '').strip()
+            conn.execute("UPDATE drogas SET cantidad=? WHERE id=?", (cantidad, droga['id']))
+            conn.commit()
+            flash("Cantidad actualizada correctamente.")
+            return redirect(url_for('ficha_sustancia', numero=numero))
+
+    return render_template('sustancia.html', droga=droga)
+
 # --- Agregar ---
 @app.route('/agregar', methods=['GET', 'POST'])
 def agregar():

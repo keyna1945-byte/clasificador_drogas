@@ -90,7 +90,14 @@
             color: #00ffcc;
         }
 
+        .escaneo {
+            color: #00ffcc;
+            margin-top: 10px;
+            min-height: 22px;
+        }
+
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 </head>
 <body>
 
@@ -116,10 +123,11 @@
 <div class="acciones">
     <a class="btn" href="/agregar">➕ Agregar Sustancia</a>
     <a class="btn" href="/exportar_excel">📄 Exportar a Excel</a>
-    <button onclick="activarCamara()">📸 Usar cámara</button>
+    <button onclick="activarCamara()">Leer QR</button>
 </div>
 
 <video id="video" autoplay playsinline></video>
+<div id="estadoEscaneo" class="escaneo"></div>
 <canvas id="canvas"></canvas>
 
 <table>
@@ -142,6 +150,7 @@
         <td>{{ d.cantidad }}</td>
         <td>{{ d.ubicacion }}</td>
         <td>
+            <a href="/sustancia/{{ d.numero }}" class="btn">QR</a>
             <a href="/editar/{{ d.id }}" class="btn editar">✏️</a>
             <a href="/eliminar/{{ d.id }}" class="btn eliminar"
                onclick="return confirm('¿Estás segura/o de eliminar esta sustancia?')">🗑️</a>
@@ -160,60 +169,126 @@
 
 <script>
 const video = document.getElementById("video");
-	let streamGlobal = null;
+const canvas = document.getElementById("canvas");
+const estadoEscaneo = document.getElementById("estadoEscaneo");
+let streamGlobal = null;
+let escaneando = false;
+let qrDetectado = false;
+let detectorQR = null;
+
+if ("BarcodeDetector" in window) {
+    try {
+        detectorQR = new BarcodeDetector({ formats: ["qr_code"] });
+    } catch (error) {
+        detectorQR = null;
+    }
+}
 
 function activarCamara() {
+    detenerCamara();
+
     video.style.display = "block";
+    estadoEscaneo.textContent = "Apuntá la cámara al QR...";
+    qrDetectado = false;
 
     navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { exact: "environment" } },
+        video: { facingMode: "environment" },
         audio: false
     })
     .then(stream => {
         streamGlobal = stream;
         video.srcObject = stream;
+        video.onloadedmetadata = () => {
+            escaneando = true;
+            escanearQR();
+        };
     })
     .catch(err => {
-        navigator.mediaDevices.getUserMedia({
-            video: { facingMode: "user" },
-            audio: false
-        }).then(stream => {
-            streamGlobal = stream;
-            video.srcObject = stream;
-        });
+        estadoEscaneo.textContent = "No se pudo abrir la cámara.";
     });
 }
 
-// Sacar foto al tocar el video
-video.addEventListener("click", () => {
-
-    const canvas = document.getElementById("canvas");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0);
-
-    canvas.toBlob(blob => {
-        const file = new File([blob], "captura.png", { type: "image/png" });
-        const input = document.getElementById("imagenInput");
-
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(file);
-
-        input.files = dataTransfer.files;
-
-        document.getElementById("formCamara").submit();
-    });
-
-    if (streamGlobal) {
-        streamGlobal.getTracks().forEach(track => track.stop());
-        video.style.display = "none";
+async function escanearQR() {
+    if (!escaneando || qrDetectado) {
+        return;
     }
 
-});
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        let textoQR = null;
+
+        if (detectorQR) {
+            try {
+                const codigos = await detectorQR.detect(video);
+                if (codigos.length > 0) {
+                    textoQR = codigos[0].rawValue;
+                }
+            } catch (error) {
+                detectorQR = null;
+            }
+        }
+
+        if (!textoQR && window.jsQR) {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const imagen = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const codigo = jsQR(imagen.data, imagen.width, imagen.height);
+
+            if (codigo) {
+                textoQR = codigo.data;
+            }
+        }
+
+        if (textoQR) {
+            qrDetectado = true;
+            estadoEscaneo.textContent = "QR detectado. Abriendo...";
+            detenerCamara();
+            abrirResultadoQR(textoQR);
+            return;
+        }
+    }
+
+    requestAnimationFrame(escanearQR);
+}
+
+function abrirResultadoQR(textoQR) {
+    const texto = textoQR.trim();
+
+    try {
+        const url = new URL(texto);
+        const numeroEnUrl = url.pathname.match(/\/sustancia\/(\d+)/);
+
+        if (numeroEnUrl) {
+            window.location.href = `/sustancia/${numeroEnUrl[1]}`;
+            return;
+        }
+
+        window.location.href = `/?busqueda=${encodeURIComponent(texto)}`;
+        return;
+    } catch (error) {
+        // No era una URL completa, seguimos interpretando el texto.
+    }
+
+    if (/^\d+$/.test(texto)) {
+        window.location.href = `/sustancia/${texto}`;
+        return;
+    }
+
+    window.location.href = `/?busqueda=${encodeURIComponent(texto)}`;
+}
+
+function detenerCamara() {
+    escaneando = false;
+    if (streamGlobal) {
+        streamGlobal.getTracks().forEach(track => track.stop());
+        streamGlobal = null;
+        video.style.display = "none";
+    }
+}
 </script>
 
 </body>
 </html>
-
