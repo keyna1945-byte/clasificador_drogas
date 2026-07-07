@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Usuarios</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #111;
+            color: white;
+            padding: 20px;
+        }
+
+        a, button {
+            padding: 9px 12px;
+            border: none;
+            border-radius: 8px;
+            background: #00bfff;
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        input, select {
+            padding: 9px;
+            border: none;
+            border-radius: 8px;
+        }
+
+        .panel {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 18px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1a1a1a;
+        }
+
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #333;
+            text-align: left;
+        }
+
+        .mensaje {
+            color: #00ffcc;
+        }
+    </style>
+</head>
+<body>
+    <a href="{{ url_for('index') }}">Volver</a>
+    <h1>Usuarios y roles</h1>
+
+    {% with mensajes = get_flashed_messages() %}
+      {% if mensajes %}
+        <div class="mensaje">
+          {% for msg in mensajes %}
+            <p>{{ msg }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <form class="panel" method="POST">
+        <h2>Crear usuario</h2>
+        <input name="usuario" type="text" placeholder="Usuario" required>
+        <input name="password" type="password" placeholder="Contrasena" required>
+        <select name="rol">
+            {% for rol in roles %}
+                <option value="{{ rol }}">{{ rol }}</option>
+            {% endfor %}
+        </select>
+        <label><input name="activo" type="checkbox" checked> Activo</label>
+        <button type="submit">Crear</button>
+    </form>
+
+    <table>
+        <tr>
+            <th>Usuario</th>
+            <th>Rol</th>
+            <th>Activo</th>
+            <th>Creado</th>
+            <th>Actualizar</th>
+        </tr>
+        {% for u in usuarios %}
+        <tr>
+            <td>{{ u.usuario }}</td>
+            <td>
+                <form method="POST" action="{{ url_for('actualizar_usuario', id=u.id) }}">
+                    <select name="rol">
+                        {% for rol in roles %}
+                            <option value="{{ rol }}" {% if u.rol == rol %}selected{% endif %}>{{ rol }}</option>
+                        {% endfor %}
+                    </select>
+            </td>
+            <td>
+                    <label><input name="activo" type="checkbox" {% if u.activo %}checked{% endif %}> Activo</label>
+            </td>
+            <td>{{ u.creado_en }}</td>
+            <td>
+                    <input name="password" type="password" placeholder="Nueva contrasena opcional">
+                    <button type="submit">Guardar</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

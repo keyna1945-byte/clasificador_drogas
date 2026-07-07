@@ -103,6 +103,10 @@
 
 <h1>🧪 Clasificador de Sustancias</h1>
 <p>Administrá y controlá sustancias químicas registradas en el sistema.</p>
+<p>
+    Sesión: {{ usuario_nombre }} ({{ usuario_rol }})
+    · <a href="{{ url_for('logout') }}" style="color:#00bfff;">Salir</a>
+</p>
 
 {% with mensajes = get_flashed_messages() %}
   {% if mensajes %}
@@ -121,9 +125,15 @@
 </form>
 
 <div class="acciones">
+    {% if usuario_rol in ['admin', 'tecnico'] %}
     <a class="btn" href="/agregar">➕ Agregar Sustancia</a>
+    {% endif %}
     <a class="btn" href="/exportar_excel">📄 Exportar a Excel</a>
     <button onclick="activarCamara()">Leer QR</button>
+    {% if usuario_rol == 'admin' %}
+    <a class="btn" href="{{ url_for('usuarios') }}">Usuarios</a>
+    <a class="btn" href="{{ url_for('historial') }}">Historial</a>
+    {% endif %}
 </div>
 
 <video id="video" autoplay playsinline></video>
@@ -151,9 +161,13 @@
         <td>{{ d.ubicacion }}</td>
         <td>
             <a href="/sustancia/{{ d.numero }}" class="btn">QR</a>
+            {% if usuario_rol in ['admin', 'tecnico'] %}
             <a href="/editar/{{ d.id }}" class="btn editar">✏️</a>
+            {% endif %}
+            {% if usuario_rol == 'admin' %}
             <a href="/eliminar/{{ d.id }}" class="btn eliminar"
                onclick="return confirm('¿Estás segura/o de eliminar esta sustancia?')">🗑️</a>
+            {% endif %}
         </td>
     </tr>
     {% else %}
