@@ -1,197 +1,120 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ droga.nombre }} - Sustancia</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #111;
-            color: white;
-        }
+{% extends 'base.html' %}
+{% block title %}{{ droga.nombre }}{% endblock %}
 
-        .contenedor {
-            max-width: 760px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+{% block content %}
+<section class="page-heading">
+    <div>
+        <p class="eyebrow">Ficha de sustancia</p>
+        <h1>{{ droga.nombre }}</h1>
+        <p>Numero {{ droga.numero }}</p>
+    </div>
+    <div class="toolbar">
+        <a class="btn btn-ghost" href="{{ url_for('index') }}"><i class="bi bi-arrow-left"></i> Volver</a>
+    </div>
+</section>
 
-        .volver, button {
-            display: inline-block;
-            padding: 10px 14px;
-            border: none;
-            border-radius: 8px;
-            background: #00bfff;
-            color: white;
-            text-decoration: none;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .ficha, .panel {
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 18px;
-            margin-top: 16px;
-        }
-
-        h1 {
-            font-size: 26px;
-            margin: 0 0 8px;
-        }
-
-        .numero {
-            color: #00ffcc;
-            font-weight: bold;
-            margin-bottom: 18px;
-        }
-
-        .dato {
-            border-top: 1px solid #333;
-            padding: 12px 0;
-        }
-
-        .etiqueta {
-            color: #aaa;
-            display: block;
-            font-size: 13px;
-            margin-bottom: 4px;
-        }
-
-        input, select, textarea {
-            box-sizing: border-box;
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: none;
-            font-size: 16px;
-            margin-top: 6px;
-        }
-
-        textarea {
-            min-height: 80px;
-            resize: vertical;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        th, td {
-            padding: 9px;
-            border-bottom: 1px solid #333;
-            text-align: left;
-        }
-
-        .mensaje {
-            color: #00ffcc;
-            margin-bottom: 12px;
-        }
-    </style>
-</head>
-<body>
-    <main class="contenedor">
-        <a class="volver" href="{{ url_for('index') }}">Volver al listado</a>
-
-        {% with mensajes = get_flashed_messages() %}
-          {% if mensajes %}
-            <div class="mensaje">
-              {% for msg in mensajes %}
-                <p>{{ msg }}</p>
-              {% endfor %}
-            </div>
-          {% endif %}
-        {% endwith %}
-
-        <section class="ficha">
-            <h1>{{ droga.nombre }}</h1>
-            <div class="numero">Numero {{ droga.numero }}</div>
-
-            <div class="dato">
-                <span class="etiqueta">Ubicacion</span>
+<section class="panel mb-4">
+    <div class="panel-body">
+        <div class="detail-grid">
+            <div class="detail-item">
+                <span>Ubicacion</span>
                 {{ droga.ubicacion or 'Sin ubicacion cargada' }}
             </div>
-
-            <div class="dato">
-                <span class="etiqueta">Peligros</span>
-                {{ droga.peligros or 'Sin peligros cargados' }}
-            </div>
-
-            <div class="dato">
-                <span class="etiqueta">Cancerigeno</span>
-                {{ droga.cancerigeno or 'Sin dato cargado' }}
-            </div>
-
-            <div class="dato">
-                <span class="etiqueta">Cantidad actual</span>
+            <div class="detail-item">
+                <span>Cantidad actual</span>
                 {{ droga.cantidad or 'Sin cantidad cargada' }}
             </div>
+            <div class="detail-item">
+                <span>Peligros</span>
+                {{ droga.peligros or 'Sin peligros cargados' }}
+            </div>
+            <div class="detail-item">
+                <span>Cancerigeno</span>
+                {{ droga.cancerigeno or 'Sin dato cargado' }}
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if usuario_rol in ['admin', 'tecnico'] %}
+<div class="row g-4 mb-4">
+    <div class="col-lg-5">
+        <section class="panel h-100">
+            <div class="panel-body">
+                <h2 class="h4 mb-3">Actualizar cantidad</h2>
+                <form method="POST">
+                    <input type="hidden" name="tipo" value="cantidad">
+                    <label class="form-label" for="cantidad">Cantidad / stock</label>
+                    <input class="form-control" type="text" id="cantidad" name="cantidad" value="{{ droga.cantidad or '' }}" required>
+                    <button class="btn btn-primary mt-3" type="submit"><i class="bi bi-save"></i> Guardar cantidad</button>
+                </form>
+            </div>
         </section>
+    </div>
 
-        {% if usuario_rol in ['admin', 'tecnico'] %}
-        <section class="panel">
-            <h2>Actualizar cantidad</h2>
-            <form method="POST">
-                <input type="hidden" name="tipo" value="cantidad">
-                <label class="etiqueta" for="cantidad">Cantidad / stock</label>
-                <input type="text" id="cantidad" name="cantidad" value="{{ droga.cantidad or '' }}" required>
-                <button type="submit">Guardar cantidad</button>
-            </form>
+    <div class="col-lg-7">
+        <section class="panel h-100">
+            <div class="panel-body">
+                <h2 class="h4 mb-3">Registrar movimiento</h2>
+                <form method="POST" class="row g-3">
+                    <input type="hidden" name="tipo" value="movimiento">
+                    <div class="col-md-6">
+                        <label class="form-label" for="accion">Accion</label>
+                        <select class="form-select" id="accion" name="accion" required>
+                            <option value="retirado">Retirado</option>
+                            <option value="en uso">En uso</option>
+                            <option value="devuelto">Devuelto a su lugar</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="cantidad_movimiento">Cantidad involucrada</label>
+                        <input class="form-control" type="text" id="cantidad_movimiento" name="cantidad_movimiento" placeholder="Ej: 20 ml, 1 frasco, 5 g">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="observacion">Observacion</label>
+                        <textarea class="form-control" id="observacion" name="observacion" rows="3" placeholder="Quien lo uso, practica, condicion al devolver, etc."></textarea>
+                    </div>
+                    <div class="col-12">
+                        <button class="btn btn-primary" type="submit"><i class="bi bi-journal-plus"></i> Registrar movimiento</button>
+                    </div>
+                </form>
+            </div>
         </section>
+    </div>
+</div>
+{% endif %}
 
-        <section class="panel">
-            <h2>Registrar movimiento</h2>
-            <form method="POST">
-                <input type="hidden" name="tipo" value="movimiento">
-
-                <label class="etiqueta" for="accion">Accion</label>
-                <select id="accion" name="accion" required>
-                    <option value="retirado">Retirado</option>
-                    <option value="en uso">En uso</option>
-                    <option value="devuelto">Devuelto a su lugar</option>
-                </select>
-
-                <label class="etiqueta" for="cantidad_movimiento">Cantidad involucrada</label>
-                <input type="text" id="cantidad_movimiento" name="cantidad_movimiento" placeholder="Ej: 20 ml, 1 frasco, 5 g">
-
-                <label class="etiqueta" for="observacion">Observacion</label>
-                <textarea id="observacion" name="observacion" placeholder="Quien lo uso, para que practica, condicion al devolver, etc."></textarea>
-
-                <button type="submit">Registrar movimiento</button>
-            </form>
-        </section>
-        {% endif %}
-
-        <section class="panel">
-            <h2>Historial reciente</h2>
-            <table>
-                <tr>
-                    <th>Fecha</th>
-                    <th>Accion</th>
-                    <th>Cantidad</th>
-                    <th>Usuario</th>
-                    <th>Observacion</th>
-                </tr>
-                {% for m in movimientos %}
-                <tr>
-                    <td>{{ m.fecha }}</td>
-                    <td>{{ m.accion }}</td>
-                    <td>{{ m.cantidad }}</td>
-                    <td>{{ m.usuario or 'Sin usuario' }}</td>
-                    <td>{{ m.observacion }}</td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="5">Todavia no hay movimientos registrados.</td>
-                </tr>
-                {% endfor %}
+<section class="panel">
+    <div class="panel-body">
+        <h2 class="h4 mb-3">Historial reciente</h2>
+        <div class="table-wrap">
+            <table class="app-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Accion</th>
+                        <th>Cantidad</th>
+                        <th>Usuario</th>
+                        <th>Observacion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in movimientos %}
+                    <tr>
+                        <td>{{ m.fecha }}</td>
+                        <td>{{ m.accion }}</td>
+                        <td>{{ m.cantidad }}</td>
+                        <td>{{ m.usuario or 'Sin usuario' }}</td>
+                        <td>{{ m.observacion }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="empty-state">Todavia no hay movimientos registrados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
             </table>
-        </section>
-    </main>
-</body>
-</html>
+        </div>
+    </div>
+</section>
+{% endblock %}

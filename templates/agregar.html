@@ -1,32 +1,47 @@
 {% extends 'base.html' %}
+{% block title %}Agregar Sustancia{% endblock %}
+
 {% block content %}
-<h2>Agregar Nueva Sustancia</h2>
-<form method="POST">
-  <div class="mb-3">
-    <label class="form-label">Número</label>
-    <input type="number" name="numero" class="form-control" required>
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">Nueva sustancia</p>
+    <h1>Agregar al inventario</h1>
+    <p>Carga los datos principales para clasificar y ubicar la sustancia en el laboratorio.</p>
   </div>
-  <div class="mb-3">
-    <label class="form-label">Nombre</label>
-    <input type="text" name="nombre" class="form-control" required>
+</section>
+
+<section class="panel">
+  <div class="panel-body">
+    <form method="POST" class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label">Numero</label>
+        <input type="number" name="numero" class="form-control" required>
+      </div>
+      <div class="col-md-8">
+        <label class="form-label">Nombre</label>
+        <input type="text" name="nombre" class="form-control" required>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Peligros</label>
+        <input type="text" name="peligros" class="form-control">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Cancerigeno</label>
+        <input type="text" name="cancerigeno" class="form-control">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Cantidad disponible</label>
+        <input type="text" name="cantidad" class="form-control">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Ubicacion</label>
+        <input type="text" name="ubicacion" class="form-control">
+      </div>
+      <div class="col-12 toolbar mt-4">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Guardar</button>
+        <a href="{{ url_for('index') }}" class="btn btn-ghost">Cancelar</a>
+      </div>
+    </form>
   </div>
-  <div class="mb-3">
-    <label class="form-label">Peligros</label>
-    <input type="text" name="peligros" class="form-control">
-  </div>
-  <div class="mb-3">
-    <label class="form-label">Cancerígeno</label>
-    <input type="text" name="cancerigeno" class="form-control">
-  </div>
-  <div class="mb-3">
-    <label class="form-label">Cantidad Disponible</label>
-    <input type="text" name="cantidad" class="form-control">
-  </div>
-  <div class="mb-3">
-    <label class="form-label">Ubicación</label>
-    <input type="text" name="ubicacion" class="form-control">
-  </div>
-  <button type="submit" class="btn btn-success">Guardar</button>
-  <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancelar</a>
-</form>
+</section>
 {% endblock %}

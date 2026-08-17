@@ -1,89 +1,33 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Iniciar sesion</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            margin: 0;
-            min-height: 100vh;
-            display: grid;
-            place-items: center;
-            font-family: Arial, sans-serif;
-            background: #111;
-            color: white;
-        }
+{% extends 'base.html' %}
+{% block title %}Ingreso LIBIM{% endblock %}
+{% block body_class %}auth-body{% endblock %}
+{% block chrome %}{% endblock %}
 
-        form {
-            width: min(420px, calc(100vw - 32px));
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 22px;
-        }
-
-        h1 {
-            margin-top: 0;
-        }
-
-        label {
-            display: block;
-            margin-top: 14px;
-            color: #aaa;
-        }
-
-        input {
-            box-sizing: border-box;
-            width: 100%;
-            padding: 12px;
-            margin-top: 6px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-
-        button, a {
-            display: inline-block;
-            margin-top: 16px;
-            padding: 10px 14px;
-            border: none;
-            border-radius: 8px;
-            background: #00bfff;
-            color: white;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .mensaje {
-            color: #00ffcc;
-        }
-    </style>
-</head>
-<body>
-    <form method="POST">
+{% block content %}
+<section class="panel auth-card mx-auto">
+    <img class="auth-logo" src="{{ url_for('static', filename='img/libim-logo.jpg') }}" alt="LIBIM - Laboratorio de Investigaciones Bioquimicas">
+    <div class="auth-heading">
+        <p class="eyebrow">Clasificador de sustancias</p>
         <h1>Acceso laboratorio</h1>
+    </div>
 
-        {% with mensajes = get_flashed_messages() %}
-          {% if mensajes %}
-            <div class="mensaje">
-              {% for msg in mensajes %}
-                <p>{{ msg }}</p>
-              {% endfor %}
-            </div>
-          {% endif %}
-        {% endwith %}
+    <form method="POST">
+        <div class="mb-3">
+            <label class="form-label" for="usuario">Usuario</label>
+            <input class="form-control" id="usuario" name="usuario" type="text" required autofocus>
+        </div>
 
-        <label for="usuario">Usuario</label>
-        <input id="usuario" name="usuario" type="text" required autofocus>
+        <div class="mb-3">
+            <label class="form-label" for="password">Contrasena</label>
+            <input class="form-control" id="password" name="password" type="password" required>
+        </div>
 
-        <label for="password">Contrasena</label>
-        <input id="password" name="password" type="password" required>
+        <div class="toolbar mt-4">
+            <button class="btn btn-primary" type="submit"><i class="bi bi-box-arrow-in-right"></i> Ingresar</button>
+            <a class="btn btn-ghost" href="{{ url_for('registro') }}">Crear usuario</a>
+        </div>
 
-        <button type="submit">Ingresar</button>
-        <a href="{{ url_for('registro') }}">Crear usuario</a>
-
-        <p class="mensaje">Primer acceso: admin / admin123</p>
+        <p class="text-muted mb-0 mt-3">Primer acceso: admin / admin123</p>
     </form>
-</body>
-</html>
+</section>
+{% endblock %}

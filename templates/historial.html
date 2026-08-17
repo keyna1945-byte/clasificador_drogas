@@ -1,84 +1,85 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Historial</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #111;
-            color: white;
-            padding: 20px;
-        }
+{% extends 'base.html' %}
+{% block title %}Historial{% endblock %}
 
-        a {
-            display: inline-block;
-            padding: 9px 12px;
-            border-radius: 8px;
-            background: #00bfff;
-            color: white;
-            text-decoration: none;
-        }
+{% block content %}
+<section class="page-heading">
+    <div>
+        <p class="eyebrow">Auditoria</p>
+        <h1>Historial del laboratorio</h1>
+        <p>Consulta movimientos de sustancias e inicios de sesion registrados por el sistema.</p>
+    </div>
+    <div class="toolbar">
+        <a class="btn btn-ghost" href="{{ url_for('index') }}"><i class="bi bi-arrow-left"></i> Volver</a>
+    </div>
+</section>
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: #1a1a1a;
-            margin-bottom: 28px;
-        }
+<section class="panel mb-4">
+    <div class="panel-body">
+        <h2 class="h4 mb-3">Movimientos de sustancias</h2>
+        <div class="table-wrap">
+            <table class="app-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Sustancia</th>
+                        <th>Accion</th>
+                        <th>Cantidad</th>
+                        <th>Usuario</th>
+                        <th>Observacion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in movimientos %}
+                    <tr>
+                        <td>{{ m.fecha }}</td>
+                        <td>{{ m.numero }} - {{ m.nombre }}</td>
+                        <td>{{ m.accion }}</td>
+                        <td>{{ m.cantidad }}</td>
+                        <td>{{ m.usuario or 'Sin usuario' }}</td>
+                        <td>{{ m.observacion }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="empty-state">Todavia no hay movimientos registrados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
 
-        th, td {
-            padding: 10px;
-            border-bottom: 1px solid #333;
-            text-align: left;
-        }
-    </style>
-</head>
-<body>
-    <a href="{{ url_for('index') }}">Volver</a>
-    <h1>Historial del laboratorio</h1>
-
-    <h2>Movimientos de sustancias</h2>
-    <table>
-        <tr>
-            <th>Fecha</th>
-            <th>Sustancia</th>
-            <th>Accion</th>
-            <th>Cantidad</th>
-            <th>Usuario</th>
-            <th>Observacion</th>
-        </tr>
-        {% for m in movimientos %}
-        <tr>
-            <td>{{ m.fecha }}</td>
-            <td>{{ m.numero }} - {{ m.nombre }}</td>
-            <td>{{ m.accion }}</td>
-            <td>{{ m.cantidad }}</td>
-            <td>{{ m.usuario or 'Sin usuario' }}</td>
-            <td>{{ m.observacion }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-
-    <h2>Inicios de sesion</h2>
-    <table>
-        <tr>
-            <th>Fecha</th>
-            <th>Usuario</th>
-            <th>IP</th>
-            <th>Resultado</th>
-            <th>Detalle</th>
-        </tr>
-        {% for l in logs %}
-        <tr>
-            <td>{{ l.fecha }}</td>
-            <td>{{ l.usuario }}</td>
-            <td>{{ l.ip }}</td>
-            <td>{% if l.exitoso %}Correcto{% else %}Fallido{% endif %}</td>
-            <td>{{ l.detalle }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-</body>
-</html>
+<section class="panel">
+    <div class="panel-body">
+        <h2 class="h4 mb-3">Inicios de sesion</h2>
+        <div class="table-wrap">
+            <table class="app-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Usuario</th>
+                        <th>IP</th>
+                        <th>Resultado</th>
+                        <th>Detalle</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for l in logs %}
+                    <tr>
+                        <td>{{ l.fecha }}</td>
+                        <td>{{ l.usuario }}</td>
+                        <td>{{ l.ip }}</td>
+                        <td>{% if l.exitoso %}Correcto{% else %}Fallido{% endif %}</td>
+                        <td>{{ l.detalle }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="empty-state">Todavia no hay inicios de sesion registrados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,34 +1,47 @@
 {% extends 'base.html' %}
+{% block title %}Editar Sustancia{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-    <h2>Editar droga</h2>
-    <form method="POST">
-        <div class="mb-3">
-            <label>Ubicación</label>
-            <input type="text" name="ubicacion" value="{{ droga.ubicacion or '' }}" class="form-control">
-        </div>
-        <div class="mb-3">
-            <label>Nombre</label>
-            <input type="text" name="nombre" value="{{ droga.nombre }}" class="form-control" required>
-        </div>
-        <div class="mb-3">
-            <label>Número</label>
-            <input type="number" name="numero" value="{{ droga.numero or '' }}" class="form-control">
-        </div>
-        <div class="mb-3">
-            <label>Cantidad</label>
-            <input type="text" name="cantidad" value="{{ droga.cantidad or '' }}" class="form-control">
-        </div>
-        <div class="mb-3">
-            <label>Peligros</label>
-            <input type="text" name="peligros" value="{{ droga.peligros or '' }}" class="form-control">
-        </div>
-        <div class="mb-3">
-            <label>Cancerígeno</label>
-            <input type="text" name="cancerigeno" value="{{ droga.cancerigeno or '' }}" class="form-control">
-        </div>
-        <button type="submit" class="btn btn-success">Guardar cambios</button>
-        <a href="{{ url_for('index') }}" class="btn btn-secondary">Volver</a>
-    </form>
-</div>
+<section class="page-heading">
+    <div>
+        <p class="eyebrow">Edicion</p>
+        <h1>{{ droga.nombre }}</h1>
+        <p>Actualiza la informacion de inventario, seguridad y ubicacion.</p>
+    </div>
+</section>
+
+<section class="panel">
+    <div class="panel-body">
+        <form method="POST" class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Ubicacion</label>
+                <input type="text" name="ubicacion" value="{{ droga.ubicacion or '' }}" class="form-control">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Nombre</label>
+                <input type="text" name="nombre" value="{{ droga.nombre }}" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Numero</label>
+                <input type="number" name="numero" value="{{ droga.numero or '' }}" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Cantidad</label>
+                <input type="text" name="cantidad" value="{{ droga.cantidad or '' }}" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Cancerigeno</label>
+                <input type="text" name="cancerigeno" value="{{ droga.cancerigeno or '' }}" class="form-control">
+            </div>
+            <div class="col-12">
+                <label class="form-label">Peligros</label>
+                <input type="text" name="peligros" value="{{ droga.peligros or '' }}" class="form-control">
+            </div>
+            <div class="col-12 toolbar mt-4">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Guardar cambios</button>
+                <a href="{{ url_for('index') }}" class="btn btn-ghost">Volver</a>
+            </div>
+        </form>
+    </div>
+</section>
 {% endblock %}

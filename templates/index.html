@@ -1,186 +1,92 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Clasificador de Sustancias</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends 'base.html' %}
+{% block title %}Clasificador de Sustancias LIBIM{% endblock %}
+{% block head_extra %}
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+{% endblock %}
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #111;
-            color: white;
-            padding: 20px;
-        }
-
-        h1 {
-            margin-bottom: 5px;
-        }
-
-        .buscador {
-            margin: 20px 0;
-            display: flex;
-            gap: 10px;
-        }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            border-radius: 8px;
-            border: none;
-        }
-
-        button, .btn {
-            padding: 10px 16px;
-            border-radius: 8px;
-            border: none;
-            background-color: #00bfff;
-            color: white;
-            cursor: pointer;
-            text-decoration: none;
-            white-space: nowrap;
-        }
-
-        .acciones {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background: #1a1a1a;
-        }
-
-        th, td {
-            padding: 10px;
-            border-bottom: 1px solid #333;
-            text-align: left;
-        }
-
-        th {
-            background: #222;
-        }
-
-        .editar {
-            background: orange;
-        }
-
-        .eliminar {
-            background: red;
-        }
-
-        video {
-            margin-top: 20px;
-            width: 100%;
-            max-width: 350px;
-            display: none;
-            border-radius: 15px;
-        }
-
-        canvas {
-            display: none;
-        }
-
-        .mensaje {
-            margin-top: 10px;
-            color: #00ffcc;
-        }
-
-        .escaneo {
-            color: #00ffcc;
-            margin-top: 10px;
-            min-height: 22px;
-        }
-
-    </style>
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
-</head>
-<body>
-
-<h1>🧪 Clasificador de Sustancias</h1>
-<p>Administrá y controlá sustancias químicas registradas en el sistema.</p>
-<p>
-    Sesión: {{ usuario_nombre }} ({{ usuario_rol }})
-    · <a href="{{ url_for('logout') }}" style="color:#00bfff;">Salir</a>
-</p>
-
-{% with mensajes = get_flashed_messages() %}
-  {% if mensajes %}
-    <div class="mensaje">
-      {% for msg in mensajes %}
-        <p>{{ msg }}</p>
-      {% endfor %}
+{% block content %}
+<section class="page-heading">
+    <div>
+        <p class="eyebrow">Inventario de laboratorio</p>
+        <h1>Clasificador de Sustancias</h1>
+        <p>Administracion, trazabilidad y consulta rapida de sustancias quimicas registradas.</p>
     </div>
-  {% endif %}
-{% endwith %}
+    <img class="institution-logo" src="{{ url_for('static', filename='img/libim-logo.jpg') }}" alt="LIBIM - Laboratorio de Investigaciones Bioquimicas">
+    <div class="toolbar">
+        {% if usuario_rol in ['admin', 'tecnico'] %}
+        <a class="btn btn-primary" href="{{ url_for('agregar') }}"><i class="bi bi-plus-lg"></i> Agregar</a>
+        {% endif %}
+        <a class="btn btn-ghost" href="{{ url_for('exportar_excel') }}"><i class="bi bi-file-earmark-excel"></i> Exportar</a>
+        <button class="btn btn-ghost" type="button" onclick="activarCamara()"><i class="bi bi-qr-code-scan"></i> Leer QR</button>
+        {% if usuario_rol == 'admin' %}
+        <a class="btn btn-ghost" href="{{ url_for('usuarios') }}"><i class="bi bi-people"></i> Usuarios</a>
+        <a class="btn btn-ghost" href="{{ url_for('historial') }}"><i class="bi bi-clock-history"></i> Historial</a>
+        {% endif %}
+    </div>
+</section>
 
-<form class="buscador" method="get" action="/">
-    <input type="text" name="busqueda" placeholder="Buscar por número, nombre, peligros, cantidad o ubicación..."
-           value="{{ busqueda }}">
-    <button type="submit">🔍 Buscar</button>
+<section class="panel">
+    <div class="panel-body">
+        <form class="search-form" method="get" action="{{ url_for('index') }}">
+            <input class="form-control" type="text" name="busqueda" placeholder="Buscar por numero, nombre, peligros, cantidad o ubicacion" value="{{ busqueda }}">
+            <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i> Buscar</button>
+        </form>
+
+        <video id="video" class="camera-preview" autoplay playsinline></video>
+        <div id="estadoEscaneo" class="scan-status"></div>
+        <canvas id="canvas" hidden></canvas>
+
+        <div class="table-wrap mt-3">
+            <table class="app-table">
+                <thead>
+                    <tr>
+                        <th>Numero</th>
+                        <th>Nombre</th>
+                        <th>Peligros</th>
+                        <th>Cancerigeno</th>
+                        <th>Cantidad</th>
+                        <th>Ubicacion</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in drogas %}
+                    <tr>
+                        <td><strong>{{ d.numero }}</strong></td>
+                        <td>{{ d.nombre }}</td>
+                        <td>{{ d.peligros }}</td>
+                        <td>{{ d.cancerigeno }}</td>
+                        <td>{{ d.cantidad }}</td>
+                        <td>{{ d.ubicacion }}</td>
+                        <td>
+                            <div class="toolbar mb-0">
+                                <a href="{{ url_for('ficha_sustancia', numero=d.numero) }}" class="btn btn-ghost" title="Ver ficha QR"><i class="bi bi-qr-code"></i></a>
+                                {% if usuario_rol in ['admin', 'tecnico'] %}
+                                <a href="{{ url_for('editar', id=d.id) }}" class="btn btn-warning" title="Editar"><i class="bi bi-pencil"></i></a>
+                                {% endif %}
+                                {% if usuario_rol == 'admin' %}
+                                <a href="{{ url_for('eliminar', id=d.id) }}" class="btn btn-danger" title="Eliminar" onclick="return confirm('¿Estas segura/o de eliminar esta sustancia?')"><i class="bi bi-trash"></i></a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="empty-state">No hay sustancias registradas.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<form id="formCamara" method="POST" action="{{ url_for('detectar_texto') }}" enctype="multipart/form-data">
+    <input type="file" name="image" id="imagenInput" hidden>
 </form>
+{% endblock %}
 
-<div class="acciones">
-    {% if usuario_rol in ['admin', 'tecnico'] %}
-    <a class="btn" href="/agregar">➕ Agregar Sustancia</a>
-    {% endif %}
-    <a class="btn" href="/exportar_excel">📄 Exportar a Excel</a>
-    <button onclick="activarCamara()">Leer QR</button>
-    {% if usuario_rol == 'admin' %}
-    <a class="btn" href="{{ url_for('usuarios') }}">Usuarios</a>
-    <a class="btn" href="{{ url_for('historial') }}">Historial</a>
-    {% endif %}
-</div>
-
-<video id="video" autoplay playsinline></video>
-<div id="estadoEscaneo" class="escaneo"></div>
-<canvas id="canvas"></canvas>
-
-<table>
-    <tr>
-        <th>Número</th>
-        <th>Nombre</th>
-        <th>Peligros</th>
-        <th>Cancerígeno</th>
-        <th>Cantidad</th>
-        <th>Ubicación</th>
-        <th>Acciones</th>
-    </tr>
-
-    {% for d in drogas %}
-    <tr>
-        <td>{{ d.numero }}</td>
-        <td>{{ d.nombre }}</td>
-        <td>{{ d.peligros }}</td>
-        <td>{{ d.cancerigeno }}</td>
-        <td>{{ d.cantidad }}</td>
-        <td>{{ d.ubicacion }}</td>
-        <td>
-            <a href="/sustancia/{{ d.numero }}" class="btn">QR</a>
-            {% if usuario_rol in ['admin', 'tecnico'] %}
-            <a href="/editar/{{ d.id }}" class="btn editar">✏️</a>
-            {% endif %}
-            {% if usuario_rol == 'admin' %}
-            <a href="/eliminar/{{ d.id }}" class="btn eliminar"
-               onclick="return confirm('¿Estás segura/o de eliminar esta sustancia?')">🗑️</a>
-            {% endif %}
-        </td>
-    </tr>
-    {% else %}
-    <tr>
-        <td colspan="7">No hay sustancias registradas.</td>
-    </tr>
-    {% endfor %}
-</table>
-
-<form id="formCamara" method="POST" action="/detectar_texto" enctype="multipart/form-data">
-    <input type="file" name="image" id="imagenInput" style="display: none;">
-</form>
-
+{% block scripts %}
 <script>
 const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
@@ -200,9 +106,8 @@ if ("BarcodeDetector" in window) {
 
 function activarCamara() {
     detenerCamara();
-
     video.style.display = "block";
-    estadoEscaneo.textContent = "Apuntá la cámara al QR...";
+    estadoEscaneo.textContent = "Apunta la camara al QR...";
     qrDetectado = false;
 
     navigator.mediaDevices.getUserMedia({
@@ -217,8 +122,8 @@ function activarCamara() {
             escanearQR();
         };
     })
-    .catch(err => {
-        estadoEscaneo.textContent = "No se pudo abrir la cámara.";
+    .catch(() => {
+        estadoEscaneo.textContent = "No se pudo abrir la camara.";
     });
 }
 
@@ -244,10 +149,8 @@ async function escanearQR() {
         if (!textoQR && window.jsQR) {
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-
             const ctx = canvas.getContext("2d");
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
             const imagen = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const codigo = jsQR(imagen.data, imagen.width, imagen.height);
 
@@ -283,7 +186,7 @@ function abrirResultadoQR(textoQR) {
         window.location.href = `/?busqueda=${encodeURIComponent(texto)}`;
         return;
     } catch (error) {
-        // No era una URL completa, seguimos interpretando el texto.
+        // Si no es una URL completa, se interpreta como numero o texto libre.
     }
 
     if (/^\d+$/.test(texto)) {
@@ -303,6 +206,4 @@ function detenerCamara() {
     }
 }
 </script>
-
-</body>
-</html>
+{% endblock %}
