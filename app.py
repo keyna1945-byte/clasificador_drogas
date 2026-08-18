@@ -224,7 +224,7 @@ def index():
     with conectar_db() as conn:
         if busqueda:
             cursor = conn.execute("""
-                SELECT * FROM drogas
+                SELECT rowid AS droga_rowid, * FROM drogas
                 WHERE CAST(numero AS TEXT) LIKE ?
                    OR nombre LIKE ?
                    OR peligros LIKE ?
@@ -233,7 +233,7 @@ def index():
                 ORDER BY nombre ASC
             """, (f'%{busqueda}%', f'%{busqueda}%', f'%{busqueda}%', f'%{busqueda}%', f'%{busqueda}%'))
         else:
-            cursor = conn.execute("SELECT * FROM drogas ORDER BY nombre ASC")
+            cursor = conn.execute("SELECT rowid AS droga_rowid, * FROM drogas ORDER BY nombre ASC")
 
         drogas = cursor.fetchall()
 
@@ -245,7 +245,7 @@ def index():
 @login_required
 def ficha_sustancia(numero):
     with conectar_db() as conn:
-        cursor = conn.execute("SELECT * FROM drogas WHERE numero=?", (numero,))
+        cursor = conn.execute("SELECT rowid AS droga_rowid, * FROM drogas WHERE numero=?", (numero,))
         droga = cursor.fetchone()
 
         if not droga:
@@ -260,11 +260,11 @@ def ficha_sustancia(numero):
             tipo = request.form.get('tipo')
             if tipo == 'cantidad':
                 cantidad = request.form.get('cantidad', '').strip()
-                conn.execute("UPDATE drogas SET cantidad=? WHERE id=?", (cantidad, droga['id']))
+                conn.execute("UPDATE drogas SET cantidad=? WHERE rowid=?", (cantidad, droga['droga_rowid']))
                 conn.execute("""
                     INSERT INTO movimientos (droga_id, usuario_id, accion, cantidad, observacion, fecha)
                     VALUES (?, ?, 'actualizo cantidad', ?, ?, ?)
-                """, (droga['id'], session.get('usuario_id'), cantidad, "Cambio manual de stock", fecha_actual()))
+                """, (droga['droga_rowid'], session.get('usuario_id'), cantidad, "Cambio manual de stock", fecha_actual()))
                 conn.commit()
                 flash("Cantidad actualizada correctamente.")
                 return redirect(url_for('ficha_sustancia', numero=numero))
@@ -279,7 +279,7 @@ def ficha_sustancia(numero):
             conn.execute("""
                 INSERT INTO movimientos (droga_id, usuario_id, accion, cantidad, observacion, fecha)
                 VALUES (?, ?, ?, ?, ?, ?)
-            """, (droga['id'], session.get('usuario_id'), accion, cantidad_movimiento, observacion, fecha_actual()))
+            """, (droga['droga_rowid'], session.get('usuario_id'), accion, cantidad_movimiento, observacion, fecha_actual()))
             conn.commit()
             flash("Movimiento registrado correctamente.")
             return redirect(url_for('ficha_sustancia', numero=numero))
@@ -289,9 +289,9 @@ def ficha_sustancia(numero):
             FROM movimientos m
             LEFT JOIN usuarios u ON u.id = m.usuario_id
             WHERE m.droga_id=?
-            ORDER BY m.fecha DESC, m.id DESC
+            ORDER BY m.fecha DESC, m.rowid DESC
             LIMIT 25
-        """, (droga['id'],)).fetchall()
+        """, (droga['droga_rowid'],)).fetchall()
 
     return render_template('sustancia.html', droga=droga, movimientos=movimientos)
 
@@ -363,9 +363,9 @@ def historial():
         movimientos = conn.execute("""
             SELECT m.*, d.numero, d.nombre, u.usuario
             FROM movimientos m
-            JOIN drogas d ON d.id = m.droga_id
+            JOIN drogas d ON d.rowid = m.droga_id
             LEFT JOIN usuarios u ON u.id = m.usuario_id
-            ORDER BY m.fecha DESC, m.id DESC
+            ORDER BY m.fecha DESC, m.rowid DESC
             LIMIT 200
         """).fetchall()
 
@@ -402,7 +402,7 @@ def agregar():
 @roles_required("admin", "tecnico")
 def editar(id):
     with conectar_db() as conn:
-        cursor = conn.execute("SELECT * FROM drogas WHERE id=?", (id,))
+        cursor = conn.execute("SELECT rowid AS droga_rowid, * FROM drogas WHERE rowid=?", (id,))
         droga = cursor.fetchone()
 
         if not droga:
@@ -420,7 +420,7 @@ def editar(id):
             conn.execute("""
                 UPDATE drogas
                 SET ubicacion=?, nombre=?, numero=?, cantidad=?, peligros=?, cancerigeno=?
-                WHERE id=?
+                WHERE rowid=?
             """, (ubicacion, nombre, numero, cantidad, peligros, cancerigeno, id))
             conn.commit()
 
@@ -435,7 +435,7 @@ def editar(id):
 @roles_required("admin")
 def eliminar(id):
     with conectar_db() as conn:
-        conn.execute("DELETE FROM drogas WHERE id=?", (id,))
+        conn.execute("DELETE FROM drogas WHERE rowid=?", (id,))
         conn.commit()
 
     flash("Sustancia eliminada correctamente.")
