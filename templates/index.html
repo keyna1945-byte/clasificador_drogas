@@ -1,43 +1,117 @@
 {% extends 'base.html' %}
 {% block title %}Clasificador de Sustancias LIBIM{% endblock %}
+
 {% block head_extra %}
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 {% endblock %}
 
 {% block content %}
+
 <section class="page-heading">
     <div>
         <p class="eyebrow">Inventario de laboratorio</p>
         <h1>Clasificador de Sustancias</h1>
         <p>Administracion, trazabilidad y consulta rapida de sustancias quimicas registradas.</p>
     </div>
-    <img class="institution-logo" src="{{ url_for('static', filename='img/libim-logo.jpg') }}" alt="LIBIM - Laboratorio de Investigaciones Bioquimicas">
+
+    <img
+        class="institution-logo"
+        src="{{ url_for('static', filename='img/libim-logo.jpg') }}"
+        alt="LIBIM - Laboratorio de Investigaciones Bioquimicas"
+    >
+
     <div class="toolbar">
+
         {% if usuario_rol in ['admin', 'tecnico'] %}
-        <a class="btn btn-primary" href="{{ url_for('agregar') }}"><i class="bi bi-plus-lg"></i> Agregar</a>
+        <a class="btn btn-primary" href="{{ url_for('agregar') }}">
+            <i class="bi bi-plus-lg"></i> Agregar
+        </a>
         {% endif %}
-        <a class="btn btn-ghost" href="{{ url_for('exportar_excel') }}"><i class="bi bi-file-earmark-excel"></i> Exportar</a>
-        <button class="btn btn-ghost" type="button" onclick="activarCamara()"><i class="bi bi-qr-code-scan"></i> Leer QR</button>
+
+        <a class="btn btn-ghost" href="{{ url_for('exportar_excel') }}">
+            <i class="bi bi-file-earmark-excel"></i> Exportar
+        </a>
+
+        <button
+            class="btn btn-ghost"
+            type="button"
+            onclick="activarCamara()"
+        >
+            <i class="bi bi-qr-code-scan"></i> Leer QR
+        </button>
+
         {% if usuario_rol == 'admin' %}
-        <a class="btn btn-ghost" href="{{ url_for('usuarios') }}"><i class="bi bi-people"></i> Usuarios</a>
-        <a class="btn btn-ghost" href="{{ url_for('historial') }}"><i class="bi bi-clock-history"></i> Historial</a>
+
+        <a class="btn btn-ghost" href="{{ url_for('usuarios') }}">
+            <i class="bi bi-people"></i> Usuarios
+        </a>
+
+        <a class="btn btn-ghost" href="{{ url_for('historial') }}">
+            <i class="bi bi-clock-history"></i> Historial
+        </a>
+
         {% endif %}
+
     </div>
 </section>
 
+
 <section class="panel">
     <div class="panel-body">
-        <form class="search-form" method="get" action="{{ url_for('index') }}">
-            <input class="form-control" type="text" name="busqueda" placeholder="Buscar por numero, nombre, peligros, cantidad o ubicacion" value="{{ busqueda }}">
-            <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i> Buscar</button>
+
+        <!-- BUSCADOR -->
+
+        <form
+            class="search-form"
+            method="get"
+            action="{{ url_for('index') }}"
+        >
+
+            <input
+                class="form-control"
+                type="text"
+                name="busqueda"
+                placeholder="Buscar por numero, nombre, CAS, peligros, cantidad o ubicacion"
+                value="{{ busqueda }}"
+            >
+
+            <button
+                class="btn btn-primary"
+                type="submit"
+            >
+                <i class="bi bi-search"></i>
+                Buscar
+            </button>
+
         </form>
 
-        <video id="video" class="camera-preview" autoplay playsinline></video>
-        <div id="estadoEscaneo" class="scan-status"></div>
-        <canvas id="canvas" hidden></canvas>
+
+        <!-- CAMARA QR -->
+
+        <video
+            id="video"
+            class="camera-preview"
+            autoplay
+            playsinline
+        ></video>
+
+        <div
+            id="estadoEscaneo"
+            class="scan-status"
+        ></div>
+
+        <canvas
+            id="canvas"
+            hidden
+        ></canvas>
+
+
+        <!-- TABLA -->
 
         <div class="table-wrap mt-3">
+
             <table class="app-table">
+
                 <thead>
                     <tr>
                         <th>Numero</th>
@@ -49,161 +123,413 @@
                         <th>Acciones</th>
                     </tr>
                 </thead>
+
                 <tbody>
+
                     {% for d in drogas %}
+
                     <tr>
-                        <td><strong>{{ d.numero }}</strong></td>
-                        <td>{{ d.nombre }}</td>
-                        <td>{{ d.peligros }}</td>
-                        <td>{{ d.cancerigeno }}</td>
-                        <td>{{ d.cantidad }}</td>
-                        <td>{{ d.ubicacion }}</td>
+
                         <td>
+                            <strong>{{ d.numero }}</strong>
+                        </td>
+
+                        <td>
+                            {{ d.nombre }}
+                        </td>
+
+                        <td>
+                            {{ d.peligros or '' }}
+                        </td>
+
+                        <td>
+                            {{ d.cancerigeno or '' }}
+                        </td>
+
+                        <td>
+                            {{ d.cantidad or '' }}
+                        </td>
+
+                        <td>
+                            {{ d.ubicacion or '' }}
+                        </td>
+
+                        <td>
+
                             <div class="toolbar mb-0">
-                                <a href="{{ url_for('ficha_sustancia', numero=d.numero) }}" class="btn btn-ghost" title="Ver ficha QR"><i class="bi bi-qr-code"></i></a>
+
+                                <!-- FICHA / QR -->
+                                <a
+                                    href="{{ url_for('ficha_sustancia', numero=d.numero) }}"
+                                    class="btn btn-ghost"
+                                    title="Ver ficha QR"
+                                >
+                                    <i class="bi bi-qr-code"></i>
+                                </a>
+
+
+                                <!-- EDITAR -->
                                 {% if usuario_rol in ['admin', 'tecnico'] %}
-                                <a href="{{ url_for('editar', id=d.id) }}" class="btn btn-warning" title="Editar"><i class="bi bi-pencil"></i></a>
+
+                                <a
+                                    href="{{ url_for('editar', id=d.droga_rowid) }}"
+                                    class="btn btn-warning"
+                                    title="Editar"
+                                >
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+
                                 {% endif %}
+
+
+                                <!-- ELIMINAR -->
                                 {% if usuario_rol == 'admin' %}
-                                <a href="{{ url_for('eliminar', id=d.id) }}" class="btn btn-danger" title="Eliminar" onclick="return confirm('¿Estas segura/o de eliminar esta sustancia?')"><i class="bi bi-trash"></i></a>
+
+                                <a
+                                    href="{{ url_for('eliminar', id=d.droga_rowid) }}"
+                                    class="btn btn-danger"
+                                    title="Eliminar"
+                                    onclick="return confirm('¿Estas segura/o de eliminar esta sustancia?')"
+                                >
+                                    <i class="bi bi-trash"></i>
+                                </a>
+
                                 {% endif %}
+
                             </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td
+                            colspan="7"
+                            class="empty-state"
+                        >
+                            No hay sustancias registradas.
                         </td>
                     </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="7" class="empty-state">No hay sustancias registradas.</td>
-                    </tr>
+
                     {% endfor %}
+
                 </tbody>
+
             </table>
+
         </div>
+
     </div>
 </section>
 
-<form id="formCamara" method="POST" action="{{ url_for('detectar_texto') }}" enctype="multipart/form-data">
-    <input type="file" name="image" id="imagenInput" hidden>
+
+<!-- FORMULARIO CAMARA -->
+
+<form
+    id="formCamara"
+    method="POST"
+    action="{{ url_for('detectar_texto') }}"
+    enctype="multipart/form-data"
+>
+    <input
+        type="file"
+        name="image"
+        id="imagenInput"
+        hidden
+    >
 </form>
+
 {% endblock %}
 
+
 {% block scripts %}
+
 <script>
+
 const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
 const estadoEscaneo = document.getElementById("estadoEscaneo");
+
 let streamGlobal = null;
 let escaneando = false;
 let qrDetectado = false;
 let detectorQR = null;
 
+
+/* BARCODE DETECTOR */
+
 if ("BarcodeDetector" in window) {
+
     try {
-        detectorQR = new BarcodeDetector({ formats: ["qr_code"] });
+
+        detectorQR = new BarcodeDetector({
+            formats: ["qr_code"]
+        });
+
     } catch (error) {
+
         detectorQR = null;
+
     }
+
 }
+
+
+/* ACTIVAR CAMARA */
 
 function activarCamara() {
+
     detenerCamara();
+
     video.style.display = "block";
-    estadoEscaneo.textContent = "Apunta la camara al QR...";
+
+    estadoEscaneo.textContent =
+        "Apunta la camara al QR...";
+
     qrDetectado = false;
 
+
     navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" },
+
+        video: {
+            facingMode: "environment"
+        },
+
         audio: false
+
     })
+
     .then(stream => {
+
         streamGlobal = stream;
+
         video.srcObject = stream;
+
         video.onloadedmetadata = () => {
+
             escaneando = true;
+
             escanearQR();
+
         };
+
     })
+
     .catch(() => {
-        estadoEscaneo.textContent = "No se pudo abrir la camara.";
+
+        estadoEscaneo.textContent =
+            "No se pudo abrir la camara.";
+
     });
+
 }
 
+
+/* ESCANEAR QR */
+
 async function escanearQR() {
+
     if (!escaneando || qrDetectado) {
         return;
     }
 
+
     if (video.readyState === video.HAVE_ENOUGH_DATA) {
+
         let textoQR = null;
 
+
+        /* DETECTOR NATIVO */
+
         if (detectorQR) {
+
             try {
-                const codigos = await detectorQR.detect(video);
+
+                const codigos =
+                    await detectorQR.detect(video);
+
                 if (codigos.length > 0) {
-                    textoQR = codigos[0].rawValue;
+
+                    textoQR =
+                        codigos[0].rawValue;
+
                 }
+
             } catch (error) {
+
                 detectorQR = null;
+
             }
+
         }
+
+
+        /* FALLBACK jsQR */
 
         if (!textoQR && window.jsQR) {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const imagen = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const codigo = jsQR(imagen.data, imagen.width, imagen.height);
+
+            canvas.width =
+                video.videoWidth;
+
+            canvas.height =
+                video.videoHeight;
+
+
+            const ctx =
+                canvas.getContext("2d");
+
+
+            ctx.drawImage(
+                video,
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
+
+
+            const imagen =
+                ctx.getImageData(
+                    0,
+                    0,
+                    canvas.width,
+                    canvas.height
+                );
+
+
+            const codigo =
+                jsQR(
+                    imagen.data,
+                    imagen.width,
+                    imagen.height
+                );
+
 
             if (codigo) {
-                textoQR = codigo.data;
+
+                textoQR =
+                    codigo.data;
+
             }
+
         }
+
+
+        /* QR DETECTADO */
 
         if (textoQR) {
+
             qrDetectado = true;
-            estadoEscaneo.textContent = "QR detectado. Abriendo...";
+
+            estadoEscaneo.textContent =
+                "QR detectado. Abriendo...";
+
             detenerCamara();
+
             abrirResultadoQR(textoQR);
+
             return;
+
         }
+
     }
+
 
     requestAnimationFrame(escanearQR);
+
 }
+
+
+/* ABRIR RESULTADO */
 
 function abrirResultadoQR(textoQR) {
-    const texto = textoQR.trim();
+
+    const texto =
+        textoQR.trim();
+
 
     try {
-        const url = new URL(texto);
-        const numeroEnUrl = url.pathname.match(/\/sustancia\/(\d+)/);
+
+        const url =
+            new URL(texto);
+
+
+        const numeroEnUrl =
+            url.pathname.match(
+                /\/sustancia\/(\d+)/
+            );
+
 
         if (numeroEnUrl) {
-            window.location.href = `/sustancia/${numeroEnUrl[1]}`;
+
+            window.location.href =
+                `/sustancia/${numeroEnUrl[1]}`;
+
             return;
+
         }
 
-        window.location.href = `/?busqueda=${encodeURIComponent(texto)}`;
+
+        window.location.href =
+            `/?busqueda=${encodeURIComponent(texto)}`;
+
         return;
+
+
     } catch (error) {
-        // Si no es una URL completa, se interpreta como numero o texto libre.
+
+        /*
+        Si no es una URL completa,
+        se interpreta como numero
+        o texto libre.
+        */
+
     }
+
 
     if (/^\d+$/.test(texto)) {
-        window.location.href = `/sustancia/${texto}`;
+
+        window.location.href =
+            `/sustancia/${texto}`;
+
         return;
+
     }
 
-    window.location.href = `/?busqueda=${encodeURIComponent(texto)}`;
+
+    window.location.href =
+        `/?busqueda=${encodeURIComponent(texto)}`;
+
 }
+
+
+/* DETENER CAMARA */
 
 function detenerCamara() {
+
     escaneando = false;
+
+
     if (streamGlobal) {
-        streamGlobal.getTracks().forEach(track => track.stop());
+
+        streamGlobal
+            .getTracks()
+            .forEach(
+                track => track.stop()
+            );
+
+
         streamGlobal = null;
-        video.style.display = "none";
+
     }
+
+
+    video.style.display = "none";
+
 }
+
 </script>
+
 {% endblock %}

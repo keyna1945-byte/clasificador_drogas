@@ -6,33 +6,224 @@
     <div>
         <p class="eyebrow">Ficha de sustancia</p>
         <h1>{{ droga.nombre }}</h1>
-        <p>Numero {{ droga.numero }}</p>
+        <p>
+            Numero {{ droga.numero }}
+            {% if droga.cas %} · CAS {{ droga.cas }}{% endif %}
+        </p>
     </div>
+
     <div class="toolbar">
-        <a class="btn btn-ghost" href="{{ url_for('index') }}"><i class="bi bi-arrow-left"></i> Volver</a>
+        <a class="btn btn-ghost" href="{{ url_for('index') }}">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+
+        {% if usuario_rol in ['admin', 'tecnico'] %}
+        <a class="btn btn-warning" href="{{ url_for('editar', id=droga.droga_rowid) }}">
+            <i class="bi bi-pencil"></i> Editar
+        </a>
+        {% endif %}
     </div>
 </section>
 
 <section class="panel mb-4">
     <div class="panel-body">
+        <h2 class="h4 mb-3">Informacion general</h2>
+
         <div class="detail-grid">
             <div class="detail-item">
                 <span>Ubicacion</span>
                 {{ droga.ubicacion or 'Sin ubicacion cargada' }}
             </div>
+
             <div class="detail-item">
                 <span>Cantidad actual</span>
                 {{ droga.cantidad or 'Sin cantidad cargada' }}
             </div>
+
             <div class="detail-item">
-                <span>Peligros</span>
-                {{ droga.peligros or 'Sin peligros cargados' }}
+                <span>CAS</span>
+                {{ droga.cas or 'Sin CAS cargado' }}
             </div>
+
             <div class="detail-item">
-                <span>Cancerigeno</span>
-                {{ droga.cancerigeno or 'Sin dato cargado' }}
+                <span>Fabricante</span>
+                {{ droga.fabricante or 'Sin fabricante cargado' }}
+            </div>
+
+            <div class="detail-item">
+                <span>Concentracion</span>
+                {{ droga.concentracion or 'Sin concentracion cargada' }}
+            </div>
+
+            <div class="detail-item">
+                <span>Formulacion</span>
+                {{ droga.formulacion or 'Sin formulacion cargada' }}
             </div>
         </div>
+    </div>
+</section>
+
+<section class="panel mb-4">
+    <div class="panel-body">
+        <h2 class="h4 mb-3">Estado de seguridad</h2>
+
+        <div class="detail-grid">
+            <div class="detail-item">
+                <span>Estado de verificacion</span>
+                {{ droga.estado_verificacion or 'Pendiente' }}
+            </div>
+
+            <div class="detail-item">
+                <span>Prioridad</span>
+                {{ droga.prioridad_verificacion or 'Sin definir' }}
+            </div>
+
+            <div class="detail-item">
+                <span>Ultima revision</span>
+                {{ droga.ultima_revision or 'Sin revision registrada' }}
+            </div>
+
+            <div class="detail-item">
+                <span>Tipo de registro</span>
+                {{ droga.tipo_registro or 'Sin clasificar' }}
+            </div>
+        </div>
+
+        {% if droga.motivo_prioridad %}
+        <div class="mt-3">
+            <strong>Motivo de prioridad</strong>
+            <p class="mb-0">{{ droga.motivo_prioridad }}</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<section class="panel mb-4">
+    <div class="panel-body">
+        <h2 class="h4 mb-3">
+            <i class="bi bi-exclamation-triangle"></i> Peligros
+        </h2>
+
+        <div class="detail-grid">
+            <div class="detail-item">
+                <span>Inflamable / combustible</span>
+                {{ droga.inflamable_combustible or 'Sin clasificar' }}
+            </div>
+
+            <div class="detail-item">
+                <span>Corrosivo</span>
+                {{ droga.corrosivo or 'Sin clasificar' }}
+            </div>
+
+            <div class="detail-item">
+                <span>Oxidante</span>
+                {{ droga.oxidante or 'Sin clasificar' }}
+            </div>
+
+            <div class="detail-item">
+                <span>Carcinogenicidad</span>
+                {{ droga.carcinogenicidad_verificada or 'Sin clasificar' }}
+            </div>
+        </div>
+
+        <div class="row g-3 mt-2">
+            <div class="col-lg-6">
+                <div class="detail-item h-100">
+                    <span>Peligros generales</span>
+                    {{ droga.peligros or 'Sin informacion cargada' }}
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="detail-item h-100">
+                    <span>Toxicidad</span>
+                    {{ droga.toxicidad or 'Sin informacion cargada' }}
+                </div>
+            </div>
+        </div>
+
+        {% if droga.pictogramas_ghs %}
+        <div class="mt-3">
+            <strong>Pictogramas GHS</strong>
+            <p class="mb-0">{{ droga.pictogramas_ghs }}</p>
+        </div>
+        {% endif %}
+
+        {% if droga.frases_h %}
+        <div class="mt-3">
+            <strong>Frases H</strong>
+            <p class="mb-0">{{ droga.frases_h }}</p>
+        </div>
+        {% endif %}
+
+        {% if droga.cancerigeno %}
+        <div class="mt-3">
+            <small class="text-muted">
+                Registro historico de carcinogenicidad: {{ droga.cancerigeno }}
+            </small>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<section class="panel mb-4">
+    <div class="panel-body">
+        <h2 class="h4 mb-3"><i class="bi bi-shield-check"></i> Proteccion personal</h2>
+        <div class="detail-item">
+            <span>EPP recomendado</span>
+            {{ droga.epp or 'Sin recomendaciones cargadas' }}
+        </div>
+    </div>
+</section>
+
+<section class="panel mb-4">
+    <div class="panel-body">
+        <h2 class="h4 mb-3"><i class="bi bi-hand-index-thumb"></i> Uso y manipulacion segura</h2>
+        <div class="detail-item">
+            <span>Indicaciones</span>
+            {{ droga.manipulacion_segura or 'Sin instrucciones cargadas' }}
+        </div>
+    </div>
+</section>
+
+<section class="panel mb-4">
+    <div class="panel-body">
+        <h2 class="h4 mb-3"><i class="bi bi-box-seam"></i> Almacenamiento</h2>
+        <div class="detail-item">
+            <span>Condiciones recomendadas</span>
+            {{ droga.almacenamiento_seguro or 'Sin instrucciones cargadas' }}
+        </div>
+    </div>
+</section>
+
+<section class="panel mb-4">
+    <div class="panel-body">
+        <h2 class="h4 mb-3"><i class="bi bi-droplet-half"></i> Actuacion ante derrames</h2>
+        <div class="detail-item">
+            <span>Procedimiento</span>
+            {{ droga.derrames or 'Sin instrucciones cargadas' }}
+        </div>
+    </div>
+</section>
+
+{% if droga.observaciones_seguridad %}
+<section class="panel mb-4">
+    <div class="panel-body">
+        <h2 class="h4 mb-3">Observaciones de seguridad</h2>
+        <p class="mb-0">{{ droga.observaciones_seguridad }}</p>
+    </div>
+</section>
+{% endif %}
+
+<section class="panel mb-4">
+    <div class="panel-body">
+        <h2 class="h4 mb-3"><i class="bi bi-file-earmark-text"></i> Fuente / FDS / SDS</h2>
+
+        {% if droga.fuente_seguridad %}
+        <p class="mb-0">{{ droga.fuente_seguridad }}</p>
+        {% else %}
+        <p class="text-muted mb-0">No se ha cargado una fuente de seguridad para esta sustancia.</p>
+        {% endif %}
     </div>
 </section>
 
@@ -42,11 +233,21 @@
         <section class="panel h-100">
             <div class="panel-body">
                 <h2 class="h4 mb-3">Actualizar cantidad</h2>
+
                 <form method="POST">
                     <input type="hidden" name="tipo" value="cantidad">
+
                     <label class="form-label" for="cantidad">Cantidad / stock</label>
-                    <input class="form-control" type="text" id="cantidad" name="cantidad" value="{{ droga.cantidad or '' }}" required>
-                    <button class="btn btn-primary mt-3" type="submit"><i class="bi bi-save"></i> Guardar cantidad</button>
+                    <input class="form-control"
+                           type="text"
+                           id="cantidad"
+                           name="cantidad"
+                           value="{{ droga.cantidad or '' }}"
+                           required>
+
+                    <button class="btn btn-primary mt-3" type="submit">
+                        <i class="bi bi-save"></i> Guardar cantidad
+                    </button>
                 </form>
             </div>
         </section>
@@ -56,8 +257,10 @@
         <section class="panel h-100">
             <div class="panel-body">
                 <h2 class="h4 mb-3">Registrar movimiento</h2>
+
                 <form method="POST" class="row g-3">
                     <input type="hidden" name="tipo" value="movimiento">
+
                     <div class="col-md-6">
                         <label class="form-label" for="accion">Accion</label>
                         <select class="form-select" id="accion" name="accion" required>
@@ -66,16 +269,29 @@
                             <option value="devuelto">Devuelto a su lugar</option>
                         </select>
                     </div>
+
                     <div class="col-md-6">
                         <label class="form-label" for="cantidad_movimiento">Cantidad involucrada</label>
-                        <input class="form-control" type="text" id="cantidad_movimiento" name="cantidad_movimiento" placeholder="Ej: 20 ml, 1 frasco, 5 g">
+                        <input class="form-control"
+                               type="text"
+                               id="cantidad_movimiento"
+                               name="cantidad_movimiento"
+                               placeholder="Ej: 20 ml, 1 frasco, 5 g">
                     </div>
+
                     <div class="col-12">
                         <label class="form-label" for="observacion">Observacion</label>
-                        <textarea class="form-control" id="observacion" name="observacion" rows="3" placeholder="Quien lo uso, practica, condicion al devolver, etc."></textarea>
+                        <textarea class="form-control"
+                                  id="observacion"
+                                  name="observacion"
+                                  rows="3"
+                                  placeholder="Quien lo uso, practica, condicion al devolver, etc."></textarea>
                     </div>
+
                     <div class="col-12">
-                        <button class="btn btn-primary" type="submit"><i class="bi bi-journal-plus"></i> Registrar movimiento</button>
+                        <button class="btn btn-primary" type="submit">
+                            <i class="bi bi-journal-plus"></i> Registrar movimiento
+                        </button>
                     </div>
                 </form>
             </div>
@@ -87,6 +303,7 @@
 <section class="panel">
     <div class="panel-body">
         <h2 class="h4 mb-3">Historial reciente</h2>
+
         <div class="table-wrap">
             <table class="app-table">
                 <thead>
@@ -98,15 +315,17 @@
                         <th>Observacion</th>
                     </tr>
                 </thead>
+
                 <tbody>
                     {% for m in movimientos %}
                     <tr>
                         <td>{{ m.fecha }}</td>
                         <td>{{ m.accion }}</td>
-                        <td>{{ m.cantidad }}</td>
+                        <td>{{ m.cantidad or '' }}</td>
                         <td>{{ m.usuario or 'Sin usuario' }}</td>
-                        <td>{{ m.observacion }}</td>
+                        <td>{{ m.observacion or '' }}</td>
                     </tr>
+
                     {% else %}
                     <tr>
                         <td colspan="5" class="empty-state">Todavia no hay movimientos registrados.</td>

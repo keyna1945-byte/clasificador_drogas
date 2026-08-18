@@ -10,38 +10,566 @@
     </div>
 </section>
 
-<section class="panel">
-    <div class="panel-body">
-        <form method="POST" class="row g-3">
-            <div class="col-md-6">
-                <label class="form-label">Ubicacion</label>
-                <input type="text" name="ubicacion" value="{{ droga.ubicacion or '' }}" class="form-control">
+<form method="POST">
+
+    <!-- INVENTARIO -->
+    <section class="panel mb-4">
+        <div class="panel-body">
+            <h2 class="h4 mb-3">Inventario</h2>
+
+            <div class="row g-3">
+
+                <div class="col-md-6">
+                    <label class="form-label">Nombre</label>
+                    <input
+                        type="text"
+                        name="nombre"
+                        value="{{ droga.nombre or '' }}"
+                        class="form-control"
+                        required
+                    >
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Numero</label>
+                    <input
+                        type="number"
+                        name="numero"
+                        value="{{ droga.numero or '' }}"
+                        class="form-control"
+                    >
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Cantidad</label>
+                    <input
+                        type="text"
+                        name="cantidad"
+                        value="{{ droga.cantidad or '' }}"
+                        class="form-control"
+                    >
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Ubicacion</label>
+                    <input
+                        type="text"
+                        name="ubicacion"
+                        value="{{ droga.ubicacion or '' }}"
+                        class="form-control"
+                    >
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Nombre normalizado</label>
+                    <input
+                        type="text"
+                        name="nombre_normalizado"
+                        value="{{ droga.nombre_normalizado or '' }}"
+                        class="form-control"
+                    >
+                </div>
+
             </div>
-            <div class="col-md-6">
-                <label class="form-label">Nombre</label>
-                <input type="text" name="nombre" value="{{ droga.nombre }}" class="form-control" required>
+        </div>
+    </section>
+
+
+    <!-- IDENTIFICACION -->
+    <section class="panel mb-4">
+        <div class="panel-body">
+
+            <h2 class="h4 mb-3">Identificacion del producto</h2>
+
+            <div class="row g-3">
+
+                <div class="col-md-4">
+                    <label class="form-label">CAS</label>
+                    <input
+                        type="text"
+                        name="cas"
+                        value="{{ droga.cas or '' }}"
+                        class="form-control"
+                    >
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Fabricante</label>
+                    <input
+                        type="text"
+                        name="fabricante"
+                        value="{{ droga.fabricante or '' }}"
+                        class="form-control"
+                    >
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Concentracion</label>
+                    <input
+                        type="text"
+                        name="concentracion"
+                        value="{{ droga.concentracion or '' }}"
+                        class="form-control"
+                    >
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Formulacion</label>
+                    <input
+                        type="text"
+                        name="formulacion"
+                        value="{{ droga.formulacion or '' }}"
+                        class="form-control"
+                    >
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Tipo de registro</label>
+                    <input
+                        type="text"
+                        name="tipo_registro"
+                        value="{{ droga.tipo_registro or '' }}"
+                        class="form-control"
+                    >
+                </div>
+
             </div>
-            <div class="col-md-4">
-                <label class="form-label">Numero</label>
-                <input type="number" name="numero" value="{{ droga.numero or '' }}" class="form-control">
+        </div>
+    </section>
+
+
+    <!-- PELIGROS -->
+    <section class="panel mb-4">
+        <div class="panel-body">
+
+            <h2 class="h4 mb-3">Clasificacion de peligros</h2>
+
+            <div class="row g-3">
+
+                <div class="col-12">
+                    <label class="form-label">Peligros generales</label>
+                    <textarea
+                        name="peligros"
+                        class="form-control"
+                        rows="3"
+                    >{{ droga.peligros or '' }}</textarea>
+                </div>
+
+
+                <div class="col-md-4">
+                    <label class="form-label">Inflamable / combustible</label>
+
+                    <select
+                        name="inflamable_combustible"
+                        class="form-select"
+                    >
+                        <option value="">Sin clasificar</option>
+
+                        <option
+                            value="Si"
+                            {% if droga.inflamable_combustible == 'Si' %}selected{% endif %}
+                        >
+                            Si
+                        </option>
+
+                        <option
+                            value="No"
+                            {% if droga.inflamable_combustible == 'No' %}selected{% endif %}
+                        >
+                            No
+                        </option>
+
+                        <option
+                            value="Requiere verificacion"
+                            {% if droga.inflamable_combustible == 'Requiere verificacion' %}selected{% endif %}
+                        >
+                            Requiere verificacion
+                        </option>
+
+                    </select>
+                </div>
+
+
+                <div class="col-md-4">
+                    <label class="form-label">Corrosivo</label>
+
+                    <select
+                        name="corrosivo"
+                        class="form-select"
+                    >
+                        <option value="">Sin clasificar</option>
+
+                        <option
+                            value="Si"
+                            {% if droga.corrosivo == 'Si' %}selected{% endif %}
+                        >
+                            Si
+                        </option>
+
+                        <option
+                            value="No"
+                            {% if droga.corrosivo == 'No' %}selected{% endif %}
+                        >
+                            No
+                        </option>
+
+                        <option
+                            value="Requiere verificacion"
+                            {% if droga.corrosivo == 'Requiere verificacion' %}selected{% endif %}
+                        >
+                            Requiere verificacion
+                        </option>
+
+                    </select>
+                </div>
+
+
+                <div class="col-md-4">
+                    <label class="form-label">Oxidante</label>
+
+                    <select
+                        name="oxidante"
+                        class="form-select"
+                    >
+                        <option value="">Sin clasificar</option>
+
+                        <option
+                            value="Si"
+                            {% if droga.oxidante == 'Si' %}selected{% endif %}
+                        >
+                            Si
+                        </option>
+
+                        <option
+                            value="No"
+                            {% if droga.oxidante == 'No' %}selected{% endif %}
+                        >
+                            No
+                        </option>
+
+                        <option
+                            value="Requiere verificacion"
+                            {% if droga.oxidante == 'Requiere verificacion' %}selected{% endif %}
+                        >
+                            Requiere verificacion
+                        </option>
+
+                    </select>
+                </div>
+
+
+                <div class="col-md-6">
+                    <label class="form-label">Toxicidad</label>
+
+                    <textarea
+                        name="toxicidad"
+                        class="form-control"
+                        rows="3"
+                    >{{ droga.toxicidad or '' }}</textarea>
+                </div>
+
+
+                <div class="col-md-6">
+                    <label class="form-label">Carcinogenicidad verificada</label>
+
+                    <textarea
+                        name="carcinogenicidad_verificada"
+                        class="form-control"
+                        rows="3"
+                    >{{ droga.carcinogenicidad_verificada or '' }}</textarea>
+                </div>
+
+
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Cancerigeno - registro historico
+                    </label>
+
+                    <input
+                        type="text"
+                        name="cancerigeno"
+                        value="{{ droga.cancerigeno or '' }}"
+                        class="form-control"
+                    >
+                </div>
+
+
+                <div class="col-md-6">
+                    <label class="form-label">Pictogramas GHS</label>
+
+                    <input
+                        type="text"
+                        name="pictogramas_ghs"
+                        value="{{ droga.pictogramas_ghs or '' }}"
+                        class="form-control"
+                    >
+                </div>
+
+
+                <div class="col-12">
+                    <label class="form-label">Frases H</label>
+
+                    <textarea
+                        name="frases_h"
+                        class="form-control"
+                        rows="3"
+                    >{{ droga.frases_h or '' }}</textarea>
+                </div>
+
             </div>
-            <div class="col-md-4">
-                <label class="form-label">Cantidad</label>
-                <input type="text" name="cantidad" value="{{ droga.cantidad or '' }}" class="form-control">
+        </div>
+    </section>
+
+
+    <!-- SEGURIDAD -->
+    <section class="panel mb-4">
+        <div class="panel-body">
+
+            <h2 class="h4 mb-3">
+                Uso y manipulacion segura
+            </h2>
+
+            <div class="row g-3">
+
+                <div class="col-12">
+                    <label class="form-label">
+                        EPP recomendado
+                    </label>
+
+                    <textarea
+                        name="epp"
+                        class="form-control"
+                        rows="3"
+                    >{{ droga.epp or '' }}</textarea>
+                </div>
+
+
+                <div class="col-12">
+                    <label class="form-label">
+                        Manipulacion segura
+                    </label>
+
+                    <textarea
+                        name="manipulacion_segura"
+                        class="form-control"
+                        rows="4"
+                    >{{ droga.manipulacion_segura or '' }}</textarea>
+                </div>
+
+
+                <div class="col-12">
+                    <label class="form-label">
+                        Almacenamiento seguro
+                    </label>
+
+                    <textarea
+                        name="almacenamiento_seguro"
+                        class="form-control"
+                        rows="4"
+                    >{{ droga.almacenamiento_seguro or '' }}</textarea>
+                </div>
+
+
+                <div class="col-12">
+                    <label class="form-label">
+                        Actuacion ante derrames
+                    </label>
+
+                    <textarea
+                        name="derrames"
+                        class="form-control"
+                        rows="4"
+                    >{{ droga.derrames or '' }}</textarea>
+                </div>
+
+
+                <div class="col-12">
+                    <label class="form-label">
+                        Observaciones de seguridad
+                    </label>
+
+                    <textarea
+                        name="observaciones_seguridad"
+                        class="form-control"
+                        rows="4"
+                    >{{ droga.observaciones_seguridad or '' }}</textarea>
+                </div>
+
             </div>
-            <div class="col-md-4">
-                <label class="form-label">Cancerigeno</label>
-                <input type="text" name="cancerigeno" value="{{ droga.cancerigeno or '' }}" class="form-control">
+        </div>
+    </section>
+
+
+    <!-- VERIFICACION -->
+    <section class="panel mb-4">
+        <div class="panel-body">
+
+            <h2 class="h4 mb-3">
+                Verificacion y fuente
+            </h2>
+
+            <div class="row g-3">
+
+
+                <div class="col-md-4">
+                    <label class="form-label">
+                        Prioridad de verificacion
+                    </label>
+
+                    <select
+                        name="prioridad_verificacion"
+                        class="form-select"
+                    >
+
+                        <option value="">
+                            Sin definir
+                        </option>
+
+                        <option
+                            value="ALTA"
+                            {% if droga.prioridad_verificacion == 'ALTA' %}selected{% endif %}
+                        >
+                            Alta
+                        </option>
+
+                        <option
+                            value="MEDIA-ALTA"
+                            {% if droga.prioridad_verificacion == 'MEDIA-ALTA' %}selected{% endif %}
+                        >
+                            Media-alta
+                        </option>
+
+                        <option
+                            value="MEDIA"
+                            {% if droga.prioridad_verificacion == 'MEDIA' %}selected{% endif %}
+                        >
+                            Media
+                        </option>
+
+                        <option
+                            value="BAJA"
+                            {% if droga.prioridad_verificacion == 'BAJA' %}selected{% endif %}
+                        >
+                            Baja
+                        </option>
+
+                    </select>
+                </div>
+
+
+                <div class="col-md-4">
+                    <label class="form-label">
+                        Estado de verificacion
+                    </label>
+
+                    <select
+                        name="estado_verificacion"
+                        class="form-select"
+                    >
+
+                        <option
+                            value="Pendiente"
+                            {% if droga.estado_verificacion == 'Pendiente' %}selected{% endif %}
+                        >
+                            Pendiente
+                        </option>
+
+                        <option
+                            value="Preliminar"
+                            {% if droga.estado_verificacion == 'Preliminar' %}selected{% endif %}
+                        >
+                            Preliminar
+                        </option>
+
+                        <option
+                            value="Verificado"
+                            {% if droga.estado_verificacion == 'Verificado' %}selected{% endif %}
+                        >
+                            Verificado
+                        </option>
+
+                        <option
+                            value="Requiere FDS especifica"
+                            {% if droga.estado_verificacion == 'Requiere FDS especifica' %}selected{% endif %}
+                        >
+                            Requiere FDS especifica
+                        </option>
+
+                    </select>
+                </div>
+
+
+                <div class="col-md-4">
+                    <label class="form-label">
+                        Ultima revision
+                    </label>
+
+                    <input
+                        type="text"
+                        name="ultima_revision"
+                        value="{{ droga.ultima_revision or '' }}"
+                        class="form-control"
+                        placeholder="AAAA-MM-DD"
+                    >
+                </div>
+
+
+                <div class="col-12">
+                    <label class="form-label">
+                        Motivo de prioridad
+                    </label>
+
+                    <textarea
+                        name="motivo_prioridad"
+                        class="form-control"
+                        rows="3"
+                    >{{ droga.motivo_prioridad or '' }}</textarea>
+                </div>
+
+
+                <div class="col-12">
+                    <label class="form-label">
+                        Fuente de seguridad / FDS / SDS
+                    </label>
+
+                    <textarea
+                        name="fuente_seguridad"
+                        class="form-control"
+                        rows="3"
+                    >{{ droga.fuente_seguridad or '' }}</textarea>
+                </div>
+
             </div>
-            <div class="col-12">
-                <label class="form-label">Peligros</label>
-                <input type="text" name="peligros" value="{{ droga.peligros or '' }}" class="form-control">
+        </div>
+    </section>
+
+
+    <!-- BOTONES -->
+    <section class="panel">
+        <div class="panel-body">
+
+            <div class="toolbar mb-0">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    <i class="bi bi-save"></i>
+                    Guardar cambios
+                </button>
+
+                <a
+                    href="{{ url_for('ficha_sustancia', numero=droga.numero) }}"
+                    class="btn btn-ghost"
+                >
+                    Cancelar
+                </a>
+
             </div>
-            <div class="col-12 toolbar mt-4">
-                <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Guardar cambios</button>
-                <a href="{{ url_for('index') }}" class="btn btn-ghost">Volver</a>
-            </div>
-        </form>
-    </div>
-</section>
+
+        </div>
+    </section>
+
+</form>
+
 {% endblock %}
