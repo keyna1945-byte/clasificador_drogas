@@ -1,0 +1,1105 @@
+{% extends 'base.html' %}
+{% block title %}RENPRE{% endblock %}
+
+{% block content %}
+
+<section class="page-heading">
+    <div>
+        <p class="eyebrow">Control regulado</p>
+
+        <h1>RENPRE</h1>
+
+        <p>
+            Registro trazable de sustancias,
+            movimientos, existencias y exportación
+            del informe trimestral o anual.
+        </p>
+    </div>
+
+    <div class="toolbar">
+        <a
+            class="btn btn-ghost"
+            href="{{ url_for('index') }}"
+        >
+            <i class="bi bi-arrow-left"></i>
+            Volver
+        </a>
+    </div>
+</section>
+
+
+<!-- =====================================================
+     EXPORTAR INFORME
+===================================================== -->
+
+<section class="panel mb-4">
+
+    <div class="panel-body">
+
+        <div
+            class="d-flex flex-wrap
+                   justify-content-between
+                   align-items-start
+                   gap-3 mb-3"
+        >
+            <div>
+                <h2 class="h4 mb-1">
+                    Exportar informe RENPRE
+                </h2>
+
+                <p class="text-muted mb-0">
+                    Genera la planilla a partir de los
+                    movimientos registrados y conserva
+                    el saldo de apertura del período.
+                </p>
+            </div>
+        </div>
+
+        <form
+            method="GET"
+            action="{{ url_for('renpre_exportar') }}"
+            class="row g-3 align-items-end"
+        >
+
+            <div class="col-md-3">
+
+                <label
+                    class="form-label"
+                    for="trimestre"
+                >
+                    Período
+                </label>
+
+                <select
+                    id="trimestre"
+                    name="trimestre"
+                    class="form-select"
+                >
+                    <option value="1">
+                        1.º trimestre · Ene–Mar
+                    </option>
+
+                    <option value="2">
+                        2.º trimestre · Abr–Jun
+                    </option>
+
+                    <option value="3">
+                        3.º trimestre · Jul–Sep
+                    </option>
+
+                    <option value="4">
+                        4.º trimestre · Oct–Dic
+                    </option>
+
+                    <option value="ANUAL">
+                        Informe anual
+                    </option>
+                </select>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <label
+                    class="form-label"
+                    for="anio"
+                >
+                    Año
+                </label>
+
+                <input
+                    id="anio"
+                    type="number"
+                    name="anio"
+                    class="form-control"
+                    value="{{ anio_actual }}"
+                    min="2000"
+                    max="2100"
+                    required
+                >
+
+            </div>
+
+            <div class="col-md-6">
+
+                <button
+                    class="btn btn-primary"
+                    type="submit"
+                >
+                    <i class="bi bi-file-earmark-excel"></i>
+                    Generar Excel RENPRE
+                </button>
+
+            </div>
+
+        </form>
+
+        <div
+            class="alert alert-light border
+                   mt-3 mb-0"
+            role="note"
+        >
+            <i class="bi bi-info-circle me-1"></i>
+
+            La exportación agrupa las operaciones
+            por sustancia y las ordena
+            cronológicamente.
+
+            Los movimientos anulados se conservan
+            para auditoría, pero no modifican el
+            stock ni se exportan como operaciones
+            vigentes.
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     REGISTRAR MOVIMIENTO
+===================================================== -->
+
+{% if usuario_rol in ['admin', 'tecnico'] %}
+
+<section class="panel mb-4">
+
+    <div class="panel-body">
+
+        <div class="mb-3">
+
+            <h2 class="h4 mb-1">
+                Registrar movimiento RENPRE
+            </h2>
+
+            <p class="text-muted mb-0">
+                La unidad de medida se toma de la
+                configuración de la sustancia para
+                mantener la consistencia del stock.
+            </p>
+
+        </div>
+
+        <form
+            method="POST"
+            action="{{ url_for('renpre_movimiento') }}"
+            class="row g-3"
+            id="form-renpre-movimiento"
+        >
+
+            <div class="col-md-6">
+
+                <label
+                    class="form-label"
+                    for="renpre_sustancia_id"
+                >
+                    Sustancia
+                </label>
+
+                <select
+                    id="renpre_sustancia_id"
+                    name="renpre_sustancia_id"
+                    class="form-select"
+                    required
+                >
+
+                    {% for s in sustancias %}
+
+                        {% if s.activo %}
+
+                        <option
+                            value="{{ s.id }}"
+                            data-unidad="{{ s.unidad_stock or '' }}"
+                        >
+                            {{ s.nombre_renpre }}
+                            —
+                            Stock actual:
+                            {{ '%.3f'|format(s.stock_actual) }}
+                            {{ s.unidad_stock or '' }}
+                        </option>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="col-md-3">
+
+                <label
+                    class="form-label"
+                    for="fecha"
+                >
+                    Fecha
+                </label>
+
+                <input
+                    id="fecha"
+                    type="date"
+                    name="fecha"
+                    class="form-control"
+                    required
+                >
+
+            </div>
+
+
+            <div class="col-md-3">
+
+                <label
+                    class="form-label"
+                    for="sentido"
+                >
+                    Sentido
+                </label>
+
+                <select
+                    id="sentido"
+                    name="sentido"
+                    class="form-select"
+                    required
+                >
+
+                    <option value="INGRESO">
+                        Ingreso
+                    </option>
+
+                    <option value="EGRESO">
+                        Egreso
+                    </option>
+
+                    <option value="AJUSTE_POSITIVO">
+                        Ajuste positivo
+                    </option>
+
+                    <option value="AJUSTE_NEGATIVO">
+                        Ajuste negativo
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <label
+                    class="form-label"
+                    for="tipo_operacion"
+                >
+                    Tipo de operación
+                </label>
+
+                <input
+                    id="tipo_operacion"
+                    type="text"
+                    name="tipo_operacion"
+                    class="form-control"
+                    placeholder="Ej.: compra, consumo, transferencia, ajuste"
+                    required
+                >
+
+            </div>
+
+
+            <div class="col-md-2">
+
+                <label
+                    class="form-label"
+                    for="cantidad"
+                >
+                    Cantidad
+                </label>
+
+                <input
+                    id="cantidad"
+                    type="number"
+                    step="any"
+                    min="0.000001"
+                    name="cantidad"
+                    class="form-control"
+                    required
+                >
+
+            </div>
+
+
+            <div class="col-md-2">
+
+                <label
+                    class="form-label"
+                    for="unidad"
+                >
+                    U.M.
+                </label>
+
+                <input
+                    id="unidad"
+                    type="text"
+                    name="unidad"
+                    class="form-control"
+                    readonly
+                    required
+                >
+
+            </div>
+
+
+            <div class="col-md-2">
+
+                <label
+                    class="form-label"
+                    for="documento_tipo"
+                >
+                    Documento tipo
+                </label>
+
+                <input
+                    id="documento_tipo"
+                    type="text"
+                    name="documento_tipo"
+                    class="form-control"
+                    placeholder="Factura, remito..."
+                >
+
+            </div>
+
+
+            <div class="col-md-2">
+
+                <label
+                    class="form-label"
+                    for="documento_numero"
+                >
+                    Documento N.º
+                </label>
+
+                <input
+                    id="documento_numero"
+                    type="text"
+                    name="documento_numero"
+                    class="form-control"
+                >
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <label
+                    class="form-label"
+                    for="transportista"
+                >
+                    Transportista
+                </label>
+
+                <input
+                    id="transportista"
+                    type="text"
+                    name="transportista"
+                    class="form-control"
+                >
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <label
+                    class="form-label"
+                    for="remitente_destinatario"
+                >
+                    Remitente / destinatario
+                </label>
+
+                <input
+                    id="remitente_destinatario"
+                    type="text"
+                    name="remitente_destinatario"
+                    class="form-control"
+                >
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <label
+                    class="form-label"
+                    for="titular_dni"
+                >
+                    Titular DNI
+                    (si corresponde)
+                </label>
+
+                <input
+                    id="titular_dni"
+                    type="text"
+                    name="titular_dni"
+                    class="form-control"
+                >
+
+            </div>
+
+
+            <div class="col-12">
+
+                <label
+                    class="form-label"
+                    for="observacion"
+                >
+                    Observación
+                </label>
+
+                <textarea
+                    id="observacion"
+                    name="observacion"
+                    class="form-control"
+                    rows="2"
+                    placeholder="Detalle adicional del movimiento, si corresponde."
+                ></textarea>
+
+            </div>
+
+
+            <div class="col-12">
+
+                <button
+                    class="btn btn-primary"
+                    type="submit"
+                >
+                    <i class="bi bi-journal-plus"></i>
+                    Registrar movimiento
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</section>
+
+{% endif %}
+
+
+<!-- =====================================================
+     SUSTANCIAS RENPRE
+===================================================== -->
+
+<section class="panel mb-4">
+
+    <div class="panel-body">
+
+        <div class="mb-3">
+
+            <h2 class="h4 mb-1">
+                Sustancias RENPRE
+            </h2>
+
+            <p class="text-muted mb-0">
+                El stock inicial y su fecha constituyen
+                la base histórica del registro.
+
+                Una vez que la sustancia tiene
+                movimientos vigentes, las correcciones
+                de saldo deben registrarse mediante
+                un ajuste.
+            </p>
+
+        </div>
+
+
+        <div class="table-wrap">
+
+            <table class="app-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Activa</th>
+                        <th>Sustancia</th>
+                        <th>Vinculada al inventario</th>
+                        <th>Fecha base</th>
+                        <th>Stock inicial</th>
+                        <th>U.M.</th>
+                        <th>Stock actual</th>
+
+                        {% if usuario_rol in ['admin', 'tecnico'] %}
+                        <th>Guardar</th>
+                        {% endif %}
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for s in sustancias %}
+
+                    <tr>
+
+                        <td>
+
+                            <input
+                                type="checkbox"
+                                name="activo"
+                                form="renpre-config-{{ s.id }}"
+                                {% if s.activo %}
+                                checked
+                                {% endif %}
+                                {% if usuario_rol not in ['admin', 'tecnico'] %}
+                                disabled
+                                {% endif %}
+                                aria-label="Activar {{ s.nombre_renpre }}"
+                            >
+
+                        </td>
+
+
+                        <td>
+                            <strong>
+                                {{ s.nombre_renpre }}
+                            </strong>
+                        </td>
+
+
+                        <td>
+
+                            {% if s.nombre_inventario %}
+
+                                {{ s.nombre_inventario }}
+
+                                {% if s.numero_inventario is not none %}
+
+                                    ({{ s.numero_inventario }})
+
+                                {% endif %}
+
+                            {% else %}
+
+                                <span class="text-muted">
+                                    No vinculada
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td style="min-width: 150px;">
+
+                            <input
+                                type="date"
+                                name="fecha_stock_inicial"
+                                form="renpre-config-{{ s.id }}"
+                                value="{{ s.fecha_stock_inicial or '' }}"
+                                class="form-control"
+                                {% if usuario_rol not in ['admin', 'tecnico'] %}
+                                disabled
+                                {% endif %}
+                            >
+
+                        </td>
+
+
+                        <td style="min-width: 130px;">
+
+                            <input
+                                type="number"
+                                step="any"
+                                min="0"
+                                name="stock_inicial"
+                                form="renpre-config-{{ s.id }}"
+                                value="{{ s.stock_inicial }}"
+                                class="form-control"
+                                {% if usuario_rol not in ['admin', 'tecnico'] %}
+                                disabled
+                                {% endif %}
+                            >
+
+                        </td>
+
+
+                        <td style="min-width: 120px;">
+
+                            <input
+                                type="text"
+                                name="unidad_stock"
+                                form="renpre-config-{{ s.id }}"
+                                value="{{ s.unidad_stock or '' }}"
+                                class="form-control"
+                                {% if usuario_rol not in ['admin', 'tecnico'] %}
+                                disabled
+                                {% endif %}
+                            >
+
+                        </td>
+
+
+                        <td>
+
+                            <strong>
+                                {{ '%.3f'|format(s.stock_actual) }}
+                            </strong>
+
+                            <span class="text-muted">
+                                {{ s.unidad_stock or '' }}
+                            </span>
+
+                        </td>
+
+
+                        {% if usuario_rol in ['admin', 'tecnico'] %}
+
+                        <td>
+
+                            <form
+                                id="renpre-config-{{ s.id }}"
+                                method="POST"
+                                action="{{ url_for('renpre_configurar', id=s.id) }}"
+                            >
+
+                                <button
+                                    class="btn btn-ghost"
+                                    type="submit"
+                                    title="Guardar configuración"
+                                    aria-label="Guardar configuración de {{ s.nombre_renpre }}"
+                                >
+                                    <i class="bi bi-save"></i>
+                                </button>
+
+                            </form>
+
+                        </td>
+
+                        {% endif %}
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     MOVIMIENTOS
+===================================================== -->
+
+<section class="panel">
+
+    <div class="panel-body">
+
+        <div
+            class="d-flex flex-wrap
+                   justify-content-between
+                   align-items-start
+                   gap-3 mb-3"
+        >
+
+            <div>
+
+                <h2 class="h4 mb-1">
+                    Movimientos RENPRE
+                </h2>
+
+                <p class="text-muted mb-0">
+                    Se muestran los movimientos
+                    vigentes y anulados para conservar
+                    la trazabilidad.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="table-wrap">
+
+            <table class="app-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Estado</th>
+                        <th>Fecha</th>
+                        <th>Sustancia</th>
+                        <th>Operación</th>
+                        <th>Sentido</th>
+                        <th>Cantidad</th>
+                        <th>Documento</th>
+                        <th>Usuario</th>
+                        <th>Observación</th>
+
+                        {% if usuario_rol == 'admin' %}
+                        <th>Acción</th>
+                        {% endif %}
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for m in movimientos %}
+
+                    <tr
+                        {% if m.anulado %}
+                        style="opacity: 0.62;"
+                        {% endif %}
+                    >
+
+                        <td>
+
+                            {% if m.anulado %}
+
+                                <span class="badge text-bg-secondary">
+                                    Anulado
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge text-bg-success">
+                                    Vigente
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+                            {{ m.fecha }}
+                        </td>
+
+
+                        <td>
+                            <strong>
+                                {{ m.nombre_renpre }}
+                            </strong>
+                        </td>
+
+
+                        <td>
+                            {{ m.tipo_operacion }}
+                        </td>
+
+
+                        <td>
+
+                            {% if m.sentido == 'INGRESO' %}
+
+                                Ingreso
+
+                            {% elif m.sentido == 'EGRESO' %}
+
+                                Egreso
+
+                            {% elif m.sentido == 'AJUSTE_POSITIVO' %}
+
+                                Ajuste +
+
+                            {% elif m.sentido == 'AJUSTE_NEGATIVO' %}
+
+                                Ajuste −
+
+                            {% else %}
+
+                                {{ m.sentido }}
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            {{ m.cantidad }}
+                            {{ m.unidad or '' }}
+
+                        </td>
+
+
+                        <td>
+
+                            {% if m.documento_tipo or m.documento_numero %}
+
+                                {{ m.documento_tipo or '' }}
+                                {{ m.documento_numero or '' }}
+
+                            {% else %}
+
+                                <span class="text-muted">
+                                    —
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            {{ m.usuario or 'Sin usuario' }}
+
+                        </td>
+
+
+                        <td>
+
+                            {% if m.observacion %}
+
+                                <div>
+                                    {{ m.observacion }}
+                                </div>
+
+                            {% endif %}
+
+
+                            {% if m.anulado %}
+
+                                <div class="mt-1">
+
+                                    <strong>
+                                        Anulado:
+                                    </strong>
+
+                                    {{ m.anulado_en or '' }}
+
+                                    {% if m.usuario_anulacion %}
+
+                                        por
+                                        {{ m.usuario_anulacion }}
+
+                                    {% endif %}
+
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        Motivo:
+                                    </strong>
+
+                                    {{ m.motivo_anulacion or 'Sin especificar' }}
+
+                                </div>
+
+                            {% elif not m.observacion %}
+
+                                <span class="text-muted">
+                                    —
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        {% if usuario_rol == 'admin' %}
+
+                        <td style="min-width: 190px;">
+
+                            {% if not m.anulado %}
+
+                            <details>
+
+                                <summary class="btn btn-ghost">
+                                    <i class="bi bi-slash-circle"></i>
+                                    Anular
+                                </summary>
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for('renpre_eliminar_movimiento', id=m.id) }}"
+                                    class="mt-2"
+                                >
+
+                                    <label
+                                        class="form-label small"
+                                        for="motivo_anulacion_{{ m.id }}"
+                                    >
+                                        Motivo de anulación
+                                    </label>
+
+                                    <input
+                                        id="motivo_anulacion_{{ m.id }}"
+                                        type="text"
+                                        name="motivo_anulacion"
+                                        class="form-control form-control-sm mb-2"
+                                        placeholder="Indica el motivo"
+                                        required
+                                    >
+
+                                    <button
+                                        class="btn btn-danger btn-sm"
+                                        type="submit"
+                                        onclick="return confirm('¿Confirmar la anulación de este movimiento? El registro se conservará para auditoría.')"
+                                    >
+                                        Confirmar anulación
+                                    </button>
+
+                                </form>
+
+                            </details>
+
+                            {% else %}
+
+                                <span class="text-muted">
+                                    Sin acciones
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        {% endif %}
+
+                    </tr>
+
+
+                    {% else %}
+
+                    <tr>
+
+                        <td
+                            colspan="{% if usuario_rol == 'admin' %}10{% else %}9{% endif %}"
+                            class="empty-state"
+                        >
+                            Todavía no hay movimientos
+                            RENPRE registrados.
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     JAVASCRIPT
+===================================================== -->
+
+<script>
+
+(function () {
+
+    const sustancia =
+        document.getElementById(
+            'renpre_sustancia_id'
+        );
+
+    const unidad =
+        document.getElementById(
+            'unidad'
+        );
+
+    const fecha =
+        document.getElementById(
+            'fecha'
+        );
+
+
+    function actualizarUnidad() {
+
+        if (
+            !sustancia
+            ||
+            !unidad
+        ) {
+            return;
+        }
+
+        const opcion =
+            sustancia.options[
+                sustancia.selectedIndex
+            ];
+
+        unidad.value =
+            opcion
+            ?
+            (
+                opcion.dataset.unidad
+                ||
+                ''
+            )
+            :
+            '';
+    }
+
+
+    if (
+        sustancia
+        &&
+        unidad
+    ) {
+
+        sustancia.addEventListener(
+            'change',
+            actualizarUnidad
+        );
+
+        actualizarUnidad();
+
+    }
+
+
+    if (
+        fecha
+        &&
+        !fecha.value
+    ) {
+
+        const hoy =
+            new Date();
+
+        const offset =
+            hoy.getTimezoneOffset();
+
+        const local =
+            new Date(
+                hoy.getTime()
+                -
+                offset
+                *
+                60
+                *
+                1000
+            );
+
+        fecha.value =
+            local
+            .toISOString()
+            .slice(
+                0,
+                10
+            );
+
+    }
+
+})();
+
+</script>
+
+{% endblock %}
