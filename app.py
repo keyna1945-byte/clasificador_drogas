@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, send_file, jsonify, session
+from flask import Flask, render_template, request, redirect, url_for, flash, send_file, send_from_directory, jsonify, session
 import sqlite3
 import pandas as pd
 import os
@@ -13,6 +13,13 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from openpyxl import load_workbook
 
 app = Flask(__name__)
+@app.route('/service-worker.js')
+def service_worker():
+    return send_from_directory(
+        app.static_folder,
+        'service-worker.js',
+        mimetype='application/javascript'
+    )
 app.secret_key = os.getenv("SECRET_KEY") or "clave_secreta"
 
 API_KEY = os.getenv("GOOGLE_API_KEY") or "TU_API_KEY_AQUI"

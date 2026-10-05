@@ -1,0 +1,24 @@
+{
+  "id": "/",
+  "name": "Sistema de Gestion de Sustancias Quimicas LIBIM",
+  "short_name": "LIBIM",
+  "description": "Sistema para la gestion y trazabilidad de sustancias quimicas del LIBIM",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#198754",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/static/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
