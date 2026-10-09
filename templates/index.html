@@ -1,21 +1,45 @@
 {% extends 'base.html' %}
-{% block title %}Clasificador de Sustancias LIBIM{% endblock %}
+
+{% block title %}
+Clasificador de Sustancias LIBIM
+{% endblock %}
+
 
 {% block head_extra %}
-<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+
+<script
+    src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"
+></script>
+
 {% endblock %}
+
 
 {% block content %}
 
+
+<!-- =====================================================
+     ENCABEZADO
+===================================================== -->
+
 <section class="page-heading">
+
     <div>
-        <p class="eyebrow">Inventario de laboratorio</p>
-        <h1>Clasificador de Sustancias</h1>
+
+        <p class="eyebrow">
+            Inventario de laboratorio
+        </p>
+
+        <h1>
+            Clasificador de Sustancias
+        </h1>
+
         <p>
             Administración, trazabilidad y consulta rápida de sustancias
             químicas registradas.
         </p>
+
     </div>
+
 
     <img
         class="institution-logo"
@@ -23,75 +47,116 @@
         alt="LIBIM - Laboratorio de Investigaciones Bioquímicas"
     >
 
+
     <div class="toolbar">
 
+
         {% if usuario_rol in ['admin', 'tecnico'] %}
+
         <a
             class="btn btn-primary"
             href="{{ url_for('agregar') }}"
         >
+
             <i class="bi bi-plus-lg"></i>
+
             Agregar
+
         </a>
+
         {% endif %}
+
 
         <a
             class="btn btn-ghost"
             href="{{ url_for('exportar_excel') }}"
         >
+
             <i class="bi bi-file-earmark-excel"></i>
+
             Exportar
+
         </a>
 
+
         <!-- MODULO RENPRE -->
+
         <a
             class="btn btn-ghost"
             href="{{ url_for('renpre') }}"
         >
+
             <i class="bi bi-clipboard-data"></i>
+
             RENPRE
+
         </a>
+
+
+        <!-- LECTOR QR -->
 
         <button
             class="btn btn-ghost"
             type="button"
             onclick="activarCamara()"
         >
+
             <i class="bi bi-qr-code-scan"></i>
+
             Leer QR
+
         </button>
 
+
         {% if usuario_rol == 'admin' %}
+
 
         <a
             class="btn btn-ghost"
             href="{{ url_for('usuarios') }}"
         >
+
             <i class="bi bi-people"></i>
+
             Usuarios
+
         </a>
+
 
         <a
             class="btn btn-ghost"
             href="{{ url_for('historial') }}"
         >
+
             <i class="bi bi-clock-history"></i>
+
             Historial
+
         </a>
+
 
         {% endif %}
 
+
     </div>
+
 </section>
+
 
 
 <!-- =====================================================
      BUSCADOR E INVENTARIO
 ===================================================== -->
 
-<section class="panel">
+<section
+    class="panel"
+    id="buscador"
+>
 
     <div class="panel-body">
+
+
+        <!-- BUSCADOR -->
 
         <form
             class="search-form"
@@ -99,23 +164,37 @@
             action="{{ url_for('index') }}"
         >
 
+
             <input
                 class="form-control"
+                id="busqueda-principal"
                 type="text"
                 name="busqueda"
+
                 placeholder="Buscar por número, nombre, peligros, cantidad o ubicación"
+
+                data-placeholder-desktop="Buscar por número, nombre, peligros, cantidad o ubicación"
+
+                data-placeholder-mobile="Buscar sustancia..."
+
                 value="{{ busqueda }}"
             >
+
 
             <button
                 class="btn btn-primary"
                 type="submit"
             >
+
                 <i class="bi bi-search"></i>
+
                 Buscar
+
             </button>
 
+
         </form>
+
 
 
         <!-- =====================================================
@@ -130,15 +209,18 @@
             style="display:none;"
         ></video>
 
+
         <div
             id="estadoEscaneo"
             class="scan-status"
         ></div>
 
+
         <canvas
             id="canvas"
             hidden
         ></canvas>
+
 
 
         <!-- =====================================================
@@ -147,71 +229,143 @@
 
         <div class="table-wrap mt-3">
 
+
             <table class="app-table">
+
 
                 <thead>
 
                     <tr>
-                        <th>Número</th>
-                        <th>Nombre</th>
-                        <th>Peligros</th>
-                        <th>Cancerígeno</th>
-                        <th>Cantidad</th>
-                        <th>Ubicación</th>
-                        <th>Acciones</th>
+
+                        <th>
+                            Número
+                        </th>
+
+                        <th>
+                            Nombre
+                        </th>
+
+                        <th>
+                            Peligros
+                        </th>
+
+                        <th>
+                            Cancerígeno
+                        </th>
+
+                        <th>
+                            Cantidad
+                        </th>
+
+                        <th>
+                            Ubicación
+                        </th>
+
+                        <th>
+                            Acciones
+                        </th>
+
                     </tr>
 
                 </thead>
 
+
                 <tbody>
+
 
                     {% for d in drogas %}
 
+
                     <tr>
 
+
+                        <!-- NUMERO -->
+
                         <td>
+
                             <strong>
                                 {{ d.numero }}
                             </strong>
+
                         </td>
 
+
+                        <!-- NOMBRE -->
+
                         <td>
+
                             {{ d.nombre }}
+
                         </td>
+
 
                         <!-- PELIGROS -->
+
                         <td>
+
                             {% if d.peligros and d.peligros|string|trim %}
+
                                 {{ d.peligros }}
+
                             {% else %}
+
                                 <span class="badge bg-warning text-dark">
+
                                     Requiere verificación
+
                                 </span>
+
                             {% endif %}
+
                         </td>
+
 
                         <!-- CANCERIGENO -->
+
                         <td>
+
                             {% if d.cancerigeno and d.cancerigeno|string|trim %}
+
                                 {{ d.cancerigeno }}
+
                             {% else %}
+
                                 <span class="badge bg-warning text-dark">
+
                                     Requiere verificación
+
                                 </span>
+
                             {% endif %}
+
                         </td>
 
+
+                        <!-- CANTIDAD -->
+
                         <td>
+
                             {{ d.cantidad or '' }}
+
                         </td>
 
+
+                        <!-- UBICACION -->
+
                         <td>
+
                             {{ d.ubicacion or '' }}
+
                         </td>
 
+
+                        <!-- ACCIONES -->
+
                         <td>
+
 
                             <div class="toolbar mb-0">
+
 
                                 <!-- VER FICHA -->
 
@@ -219,49 +373,68 @@
                                     href="{{ url_for('ficha_sustancia', numero=d.numero) }}"
                                     class="btn btn-ghost"
                                     title="Ver ficha"
+                                    aria-label="Ver ficha de {{ d.nombre }}"
                                 >
+
                                     <i class="bi bi-qr-code"></i>
+
                                 </a>
+
 
 
                                 <!-- EDITAR -->
 
                                 {% if usuario_rol in ['admin', 'tecnico'] %}
 
+
                                 <a
                                     href="{{ url_for('editar', id=d.droga_rowid) }}"
                                     class="btn btn-warning"
                                     title="Editar"
+                                    aria-label="Editar {{ d.nombre }}"
                                 >
+
                                     <i class="bi bi-pencil"></i>
+
                                 </a>
 
+
                                 {% endif %}
+
 
 
                                 <!-- ELIMINAR -->
 
                                 {% if usuario_rol == 'admin' %}
 
+
                                 <a
                                     href="{{ url_for('eliminar', id=d.droga_rowid) }}"
                                     class="btn btn-danger"
                                     title="Eliminar"
+                                    aria-label="Eliminar {{ d.nombre }}"
                                     onclick="return confirm('¿Estás segura/o de eliminar esta sustancia?')"
                                 >
+
                                     <i class="bi bi-trash"></i>
+
                                 </a>
+
 
                                 {% endif %}
 
+
                             </div>
 
+
                         </td>
+
 
                     </tr>
 
 
                     {% else %}
+
 
                     <tr>
 
@@ -269,22 +442,30 @@
                             colspan="7"
                             class="empty-state"
                         >
+
                             No hay sustancias registradas.
+
                         </td>
 
                     </tr>
 
+
                     {% endfor %}
+
 
                 </tbody>
 
+
             </table>
 
+
         </div>
+
 
     </div>
 
 </section>
+
 
 
 <!-- =====================================================
@@ -307,12 +488,95 @@
 
 </form>
 
+
 {% endblock %}
+
 
 
 {% block scripts %}
 
+
 <script>
+
+/* =====================================================
+   PLACEHOLDER RESPONSIVE DEL BUSCADOR
+===================================================== */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const buscador =
+            document.getElementById(
+                "busqueda-principal"
+            );
+
+
+        if (!buscador) {
+
+            return;
+
+        }
+
+
+        const mediaMovil =
+            window.matchMedia(
+                "(max-width: 760px)"
+            );
+
+
+        function actualizarPlaceholder() {
+
+            buscador.placeholder =
+                mediaMovil.matches
+
+                    ? buscador.dataset.placeholderMobile
+
+                    : buscador.dataset.placeholderDesktop;
+
+        }
+
+
+        actualizarPlaceholder();
+
+
+        /*
+        Navegadores modernos
+        */
+
+        if (mediaMovil.addEventListener) {
+
+            mediaMovil.addEventListener(
+                "change",
+                actualizarPlaceholder
+            );
+
+        }
+
+        /*
+        Compatibilidad con navegadores anteriores
+        */
+
+        else if (mediaMovil.addListener) {
+
+            mediaMovil.addListener(
+                actualizarPlaceholder
+            );
+
+        }
+
+    }
+);
+
+</script>
+
+
+
+<script>
+
+/* =====================================================
+   ELEMENTOS DEL LECTOR QR
+===================================================== */
 
 const video =
     document.getElementById("video");
@@ -321,7 +585,9 @@ const canvas =
     document.getElementById("canvas");
 
 const estadoEscaneo =
-    document.getElementById("estadoEscaneo");
+    document.getElementById(
+        "estadoEscaneo"
+    );
 
 
 let streamGlobal = null;
@@ -331,6 +597,7 @@ let escaneando = false;
 let qrDetectado = false;
 
 let detectorQR = null;
+
 
 
 /* =====================================================
@@ -343,18 +610,24 @@ if ("BarcodeDetector" in window) {
 
         detectorQR =
             new BarcodeDetector({
-                formats: ["qr_code"]
+
+                formats: [
+                    "qr_code"
+                ]
+
             });
 
     }
 
     catch (error) {
 
-        detectorQR = null;
+        detectorQR =
+            null;
 
     }
 
 }
+
 
 
 /* =====================================================
@@ -365,57 +638,82 @@ function activarCamara() {
 
     detenerCamara();
 
+
     video.style.display =
         "block";
+
 
     estadoEscaneo.textContent =
         "Apunta la cámara al QR...";
 
-    qrDetectado = false;
+
+    qrDetectado =
+        false;
 
 
     navigator.mediaDevices
         .getUserMedia({
 
             video: {
-                facingMode: "environment"
+
+                facingMode:
+                    "environment"
+
             },
 
-            audio: false
+            audio:
+                false
 
         })
 
-        .then(stream => {
+        .then(
 
-            streamGlobal =
-                stream;
-
-            video.srcObject =
-                stream;
+            stream => {
 
 
-            video.onloadedmetadata =
-                () => {
+                streamGlobal =
+                    stream;
 
-                    escaneando =
-                        true;
 
-                    escanearQR();
+                video.srcObject =
+                    stream;
 
-                };
 
-        })
+                video.onloadedmetadata =
+                    () => {
 
-        .catch(error => {
 
-            console.error(error);
+                        escaneando =
+                            true;
 
-            estadoEscaneo.textContent =
-                "No se pudo abrir la cámara.";
 
-        });
+                        escanearQR();
+
+                    };
+
+            }
+
+        )
+
+        .catch(
+
+            error => {
+
+
+                console.error(
+                    error
+                );
+
+
+                estadoEscaneo.textContent =
+                    "No se pudo abrir la cámara.";
+
+            }
+
+        );
 
 }
+
 
 
 /* =====================================================
@@ -423,6 +721,7 @@ function activarCamara() {
 ===================================================== */
 
 async function escanearQR() {
+
 
     if (
         !escaneando ||
@@ -439,7 +738,10 @@ async function escanearQR() {
         video.HAVE_ENOUGH_DATA
     ) {
 
-        let textoQR = null;
+
+        let textoQR =
+            null;
+
 
 
         /* ---------------------------------------------
@@ -448,7 +750,9 @@ async function escanearQR() {
 
         if (detectorQR) {
 
+
             try {
+
 
                 const codigos =
                     await detectorQR.detect(
@@ -460,21 +764,26 @@ async function escanearQR() {
                     codigos.length > 0
                 ) {
 
+
                     textoQR =
                         codigos[0].rawValue;
 
                 }
 
+
             }
 
             catch (error) {
+
 
                 detectorQR =
                     null;
 
             }
 
+
         }
+
 
 
         /* ---------------------------------------------
@@ -486,8 +795,10 @@ async function escanearQR() {
             window.jsQR
         ) {
 
+
             canvas.width =
                 video.videoWidth;
+
 
             canvas.height =
                 video.videoHeight;
@@ -538,12 +849,15 @@ async function escanearQR() {
 
             if (codigo) {
 
+
                 textoQR =
                     codigo.data;
 
             }
 
+
         }
+
 
 
         /* ---------------------------------------------
@@ -551,6 +865,7 @@ async function escanearQR() {
         --------------------------------------------- */
 
         if (textoQR) {
+
 
             qrDetectado =
                 true;
@@ -572,6 +887,7 @@ async function escanearQR() {
 
         }
 
+
     }
 
 
@@ -582,6 +898,7 @@ async function escanearQR() {
 }
 
 
+
 /* =====================================================
    ABRIR RESULTADO QR
 ===================================================== */
@@ -590,8 +907,10 @@ function abrirResultadoQR(
     textoQR
 ) {
 
+
     const texto =
         textoQR.trim();
+
 
 
     /*
@@ -601,8 +920,11 @@ function abrirResultadoQR(
 
     try {
 
+
         const url =
-            new URL(texto);
+            new URL(
+                texto
+            );
 
 
         const numeroEnUrl =
@@ -612,6 +934,7 @@ function abrirResultadoQR(
 
 
         if (numeroEnUrl) {
+
 
             window.location.href =
                 `/sustancia/${numeroEnUrl[1]}`;
@@ -628,9 +951,11 @@ function abrirResultadoQR(
 
         return;
 
+
     }
 
     catch (error) {
+
 
         /*
         Si no es una URL completa,
@@ -641,14 +966,18 @@ function abrirResultadoQR(
     }
 
 
+
     /*
     Si contiene solamente
     un número de sustancia
     */
 
     if (
-        /^\d+$/.test(texto)
+        /^\d+$/.test(
+            texto
+        )
     ) {
+
 
         window.location.href =
             `/sustancia/${texto}`;
@@ -657,6 +986,7 @@ function abrirResultadoQR(
         return;
 
     }
+
 
 
     /*
@@ -670,11 +1000,13 @@ function abrirResultadoQR(
 }
 
 
+
 /* =====================================================
    DETENER CAMARA
 ===================================================== */
 
 function detenerCamara() {
+
 
     escaneando =
         false;
@@ -682,11 +1014,14 @@ function detenerCamara() {
 
     if (streamGlobal) {
 
+
         streamGlobal
             .getTracks()
             .forEach(
+
                 track =>
                     track.stop()
+
             );
 
 
@@ -702,15 +1037,20 @@ function detenerCamara() {
 }
 
 
+
 /* =====================================================
    DETENER CAMARA AL SALIR
 ===================================================== */
 
 window.addEventListener(
+
     "beforeunload",
+
     detenerCamara
+
 );
 
 </script>
+
 
 {% endblock %}

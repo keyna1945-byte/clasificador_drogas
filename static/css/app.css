@@ -13,35 +13,77 @@
   --shadow: 0 18px 45px rgba(22, 45, 64, 0.11);
 }
 
+
+/* =====================================================
+   BASE
+===================================================== */
+
 * {
   box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   min-height: 100vh;
   margin: 0;
+
   background:
-    radial-gradient(circle at top left, rgba(47, 158, 143, 0.12), transparent 34rem),
-    linear-gradient(180deg, #fbfdff 0%, var(--page) 42%, #eef3f7 100%);
+    radial-gradient(
+      circle at top left,
+      rgba(47, 158, 143, 0.12),
+      transparent 34rem
+    ),
+    linear-gradient(
+      180deg,
+      #fbfdff 0%,
+      var(--page) 42%,
+      #eef3f7 100%
+    );
+
   color: var(--ink);
-  font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+
+  font-family:
+    Inter,
+    "Segoe UI",
+    Roboto,
+    Arial,
+    sans-serif;
 }
 
 a {
   color: var(--brand);
 }
 
+
+/* =====================================================
+   CONTENEDOR GENERAL
+===================================================== */
+
 .app-container {
   max-width: 1180px;
 }
 
+
+/* =====================================================
+   ENCABEZADO
+===================================================== */
+
 .app-shell-header {
   position: sticky;
   top: 0;
+
   z-index: 20;
+
   background: rgba(255, 255, 255, 0.92);
-  border-bottom: 1px solid rgba(219, 228, 234, 0.9);
+
+  border-bottom:
+    1px solid rgba(219, 228, 234, 0.9);
+
   backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
 .navbar {
@@ -49,11 +91,20 @@ a {
   padding: 0;
 }
 
+
+/* =====================================================
+   IDENTIDAD LIBIM
+===================================================== */
+
 .brand-lockup {
   display: inline-flex;
+
   align-items: center;
+
   gap: 12px;
+
   color: var(--ink);
+
   text-decoration: none;
 }
 
@@ -63,25 +114,39 @@ a {
 
 .brand-mark {
   display: grid;
+
   place-items: center;
+
   width: 92px;
   height: 52px;
+
   overflow: hidden;
+
   border-radius: 8px;
+
   border: 1px solid var(--line);
+
   background: #fff;
+
   color: #fff;
+
   font-size: 12px;
   font-weight: 800;
+
   letter-spacing: 0;
-  box-shadow: 0 10px 24px rgba(0, 106, 113, 0.12);
+
+  box-shadow:
+    0 10px 24px rgba(0, 106, 113, 0.12);
 }
 
 .brand-mark img {
   width: 100%;
   height: 100%;
+
   object-fit: contain;
+
   padding: 3px;
+
   background: #fff;
 }
 
@@ -91,7 +156,9 @@ a {
 
 .brand-copy {
   display: flex;
+
   flex-direction: column;
+
   line-height: 1.08;
 }
 
@@ -102,31 +169,56 @@ a {
 
 .brand-copy small {
   margin-top: 4px;
+
   color: var(--muted);
+
   font-size: 0.78rem;
 }
 
+
+/* =====================================================
+   SESION / ACCIONES SUPERIORES
+===================================================== */
+
 .nav-actions {
   display: flex;
+
   align-items: center;
+
   gap: 10px;
+
   margin-left: auto;
 }
 
 .session-chip,
 .status-chip {
   display: inline-flex;
+
   align-items: center;
+
   gap: 7px;
+
   min-height: 36px;
+
   padding: 7px 11px;
+
   border: 1px solid var(--line);
+
   border-radius: 8px;
+
   background: var(--surface);
+
   color: var(--muted);
+
   font-size: 0.9rem;
+
   white-space: nowrap;
 }
+
+
+/* =====================================================
+   CONTENIDO
+===================================================== */
 
 .app-main {
   padding: 28px 0 42px;
@@ -134,23 +226,37 @@ a {
 
 .app-footer {
   padding: 22px 0 28px;
+
   color: var(--muted);
 }
 
+
+/* =====================================================
+   TITULOS DE PAGINA
+===================================================== */
+
 .page-heading {
   display: flex;
+
   align-items: flex-start;
+
   justify-content: space-between;
+
   gap: 18px;
+
   margin-bottom: 24px;
 }
 
 .eyebrow {
   margin: 0 0 6px;
+
   color: var(--brand);
+
   font-size: 0.76rem;
   font-weight: 800;
+
   letter-spacing: 0.08em;
+
   text-transform: uppercase;
 }
 
@@ -162,31 +268,58 @@ h3 {
 
 .page-heading h1 {
   margin: 0;
-  font-size: clamp(1.8rem, 3vw, 2.65rem);
+
+  font-size:
+    clamp(1.8rem, 3vw, 2.65rem);
+
   font-weight: 850;
 }
 
 .page-heading p {
   max-width: 680px;
+
   margin: 8px 0 0;
+
   color: var(--muted);
 }
 
+
+/* =====================================================
+   LOGO INSTITUCIONAL
+===================================================== */
+
 .institution-logo {
   width: min(230px, 28vw);
+
   max-height: 116px;
+
   object-fit: contain;
+
   border: 1px solid var(--line);
+
   border-radius: 8px;
+
   background: #fff;
+
   padding: 6px;
-  box-shadow: 0 12px 30px rgba(22, 45, 64, 0.08);
+
+  box-shadow:
+    0 12px 30px rgba(22, 45, 64, 0.08);
 }
+
+
+/* =====================================================
+   PANELES
+===================================================== */
 
 .panel {
   border: 1px solid var(--line);
+
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.94);
+
+  background:
+    rgba(255, 255, 255, 0.94);
+
   box-shadow: var(--shadow);
 }
 
@@ -194,118 +327,192 @@ h3 {
   padding: 22px;
 }
 
+
+/* =====================================================
+   BARRAS DE ACCIONES
+===================================================== */
+
 .toolbar {
   display: flex;
+
   flex-wrap: wrap;
+
   align-items: center;
+
   gap: 10px;
+
   margin-bottom: 18px;
 }
 
+
+/* =====================================================
+   BUSCADOR
+===================================================== */
+
 .search-form {
   display: grid;
-  grid-template-columns: minmax(220px, 1fr) auto;
+
+  grid-template-columns:
+    minmax(220px, 1fr) auto;
+
   gap: 10px;
+
   width: 100%;
+
   margin-bottom: 16px;
 }
+
+
+/* =====================================================
+   FORMULARIOS
+===================================================== */
 
 .form-control,
 .form-select {
   min-height: 44px;
+
   border-color: var(--line);
+
   border-radius: 8px;
 }
 
 .form-control:focus,
 .form-select:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 0.2rem rgba(47, 158, 143, 0.16);
+
+  box-shadow:
+    0 0 0 0.2rem
+    rgba(47, 158, 143, 0.16);
 }
 
 .form-label,
 .field-label {
   color: #455263;
+
   font-size: 0.9rem;
+
   font-weight: 700;
 }
 
+
+/* =====================================================
+   BOTONES
+===================================================== */
+
 .btn {
   display: inline-flex;
+
   align-items: center;
+
   justify-content: center;
+
   gap: 8px;
+
   min-height: 40px;
+
   border-radius: 8px;
+
   font-weight: 750;
+
   white-space: nowrap;
 }
 
 .btn-primary,
 .btn-success {
   border-color: var(--brand);
+
   background: var(--brand);
 }
 
 .btn-primary:hover,
 .btn-success:hover {
   border-color: var(--brand-dark);
+
   background: var(--brand-dark);
 }
 
 .btn-ghost,
 .btn-secondary {
   border: 1px solid var(--line);
+
   background: #fff;
+
   color: var(--ink);
 }
 
 .btn-ghost:hover,
 .btn-secondary:hover {
   border-color: #c6d4dd;
+
   background: var(--surface-soft);
+
   color: var(--ink);
 }
 
 .btn-warning {
   border-color: var(--warning);
+
   background: var(--warning);
+
   color: #fff;
 }
 
 .btn-danger {
   border-color: var(--danger);
+
   background: var(--danger);
 }
 
+
+/* =====================================================
+   TABLAS
+===================================================== */
+
 .table-wrap {
   overflow-x: auto;
+
+  -webkit-overflow-scrolling: touch;
+
   border: 1px solid var(--line);
+
   border-radius: 8px;
+
   background: #fff;
 }
 
 .app-table {
   width: 100%;
+
   margin: 0;
+
   border-collapse: separate;
+
   border-spacing: 0;
 }
 
 .app-table th {
   padding: 13px 14px;
+
   background: #f1f6f8;
+
   color: #415062;
+
   font-size: 0.78rem;
+
   font-weight: 850;
+
   letter-spacing: 0.04em;
+
   text-transform: uppercase;
 }
 
 .app-table td {
   padding: 13px 14px;
+
   border-top: 1px solid var(--line);
+
   color: #23303c;
+
   vertical-align: middle;
 }
 
@@ -313,70 +520,122 @@ h3 {
   background: #fbfdfd;
 }
 
+
+/* =====================================================
+   ESTADO VACIO
+===================================================== */
+
 .empty-state {
   padding: 28px;
+
   color: var(--muted);
+
   text-align: center;
 }
 
+
+/* =====================================================
+   DETALLE
+===================================================== */
+
 .detail-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
   gap: 12px;
 }
 
 .detail-item {
   padding: 14px;
+
   border: 1px solid var(--line);
+
   border-radius: 8px;
+
   background: #fbfdff;
 }
 
 .detail-item span {
   display: block;
+
   margin-bottom: 5px;
+
   color: var(--muted);
+
   font-size: 0.78rem;
+
   font-weight: 800;
+
   letter-spacing: 0.04em;
+
   text-transform: uppercase;
 }
 
+
+/* =====================================================
+   CAMARA / QR
+===================================================== */
+
 .camera-preview {
   display: none;
+
   width: min(100%, 430px);
+
   margin: 12px 0;
+
   border: 1px solid var(--line);
+
   border-radius: 8px;
+
   box-shadow: var(--shadow);
 }
 
 .scan-status {
   min-height: 24px;
+
   color: var(--brand);
+
   font-weight: 700;
 }
 
+
+/* =====================================================
+   LOGIN
+===================================================== */
+
 .auth-body {
   display: grid;
+
   min-height: 100vh;
+
   place-items: center;
+
   padding: 24px;
 }
 
 .auth-card {
   width: min(520px, 100%);
+
   padding: 28px;
 }
 
 .auth-logo {
   display: block;
+
   width: 100%;
+
   max-height: 230px;
+
   object-fit: contain;
+
   margin-bottom: 22px;
+
   border: 1px solid var(--line);
+
   border-radius: 8px;
+
   background: #fff;
 }
 
@@ -386,63 +645,389 @@ h3 {
 
 .auth-heading h1 {
   margin: 0;
+
   font-size: 1.65rem;
+
   font-weight: 850;
 }
 
+
+/* =====================================================
+   FORMULARIOS EN LINEA
+===================================================== */
+
 .inline-form {
   display: flex;
+
   flex-wrap: wrap;
+
   align-items: center;
+
   gap: 10px;
 }
+
+
+/* =====================================================
+   MENSAJES
+===================================================== */
 
 .flash-stack {
   margin-bottom: 18px;
 }
 
+
+/* =====================================================
+   NAVEGACION INFERIOR
+   OCULTA EN ESCRITORIO
+===================================================== */
+
+.mobile-bottom-nav {
+  display: none;
+}
+
+
+/* =====================================================
+   VERSION MOVIL
+===================================================== */
+
 @media (max-width: 760px) {
-  .navbar {
-    min-height: auto;
-    padding: 12px 0;
+
+
+  /* ===================================================
+     ESTRUCTURA GENERAL
+  ==================================================== */
+
+  body:not(.auth-body) {
+    padding-bottom:
+      calc(
+        74px +
+        env(safe-area-inset-bottom)
+      );
   }
 
+  .app-container {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .app-shell-header {
+    position: sticky;
+
+    top: 0;
+
+    z-index: 1020;
+  }
+
+
+  /* ===================================================
+     ENCABEZADO
+  ==================================================== */
+
+  .navbar {
+    min-height: auto;
+
+    padding: 10px 0;
+  }
+
+  .brand-lockup {
+    min-width: 0;
+
+    gap: 9px;
+  }
+
+  .brand-mark {
+    flex: 0 0 auto;
+
+    width: 72px;
+    height: 44px;
+  }
+
+  .brand-copy {
+    min-width: 0;
+  }
+
+  .brand-copy strong {
+    font-size: 0.9rem;
+
+    line-height: 1.1;
+  }
+
+  .brand-copy small {
+    margin-top: 3px;
+
+    font-size: 0.7rem;
+  }
+
+
+  /* ===================================================
+     SESION
+  ==================================================== */
+
+  .nav-actions {
+    width: 100%;
+
+    margin: 10px 0 0;
+
+    justify-content: space-between;
+
+    gap: 8px;
+  }
+
+  .session-chip {
+    max-width:
+      calc(100vw - 130px);
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    font-size: 0.8rem;
+  }
+
+  .nav-actions .btn {
+    flex: 0 0 auto;
+  }
+
+
+  /* ===================================================
+     CONTENIDO
+  ==================================================== */
+
   .app-main {
-    padding-top: 20px;
+    padding-top: 18px;
+
+    padding-bottom: 24px;
   }
 
   .page-heading {
     display: block;
+
+    margin-bottom: 18px;
   }
+
+  .page-heading h1 {
+    font-size:
+      clamp(1.65rem, 8vw, 2.1rem);
+
+    line-height: 1.08;
+  }
+
+  .page-heading p {
+    font-size: 0.92rem;
+
+    line-height: 1.45;
+  }
+
+
+  /* ===================================================
+     LOGO
+  ==================================================== */
 
   .institution-logo {
     width: 100%;
+
     max-width: 320px;
+
+    max-height: 120px;
+
     margin: 16px 0 0;
   }
+
+
+  /* ===================================================
+     BARRA DE ACCIONES
+  ==================================================== */
 
   .page-heading .toolbar {
     margin-top: 16px;
   }
 
-  .nav-actions {
-    width: 100%;
-    margin: 12px 0 0;
-    justify-content: space-between;
+  .toolbar {
+    gap: 8px;
   }
 
-  .session-chip {
-    max-width: calc(100vw - 128px);
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+
+  /* ===================================================
+     FORMULARIOS
+  ==================================================== */
 
   .search-form,
   .detail-grid {
     grid-template-columns: 1fr;
   }
 
+  .form-control,
+  .form-select,
+  .btn {
+    min-height: 44px;
+  }
+
+  .form-control,
+  .form-select {
+    font-size: 16px;
+  }
+
+
+  /* ===================================================
+     PANELES
+  ==================================================== */
+
   .panel-body {
     padding: 17px;
   }
+
+
+  /* ===================================================
+     TABLAS
+  ==================================================== */
+
+  .table-wrap {
+    width: 100%;
+
+    overflow-x: auto;
+  }
+
+  .app-table {
+    min-width: 720px;
+  }
+
+  .app-table th,
+  .app-table td {
+    padding: 11px 12px;
+  }
+
+
+  /* ===================================================
+     BUSCADOR COMO DESTINO DE LA BARRA
+  ==================================================== */
+
+  #buscador {
+    scroll-margin-top: 115px;
+  }
+
+
+  /* ===================================================
+     NAVEGACION INFERIOR TIPO APP
+  ==================================================== */
+
+  .mobile-bottom-nav {
+    position: fixed;
+
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    z-index: 1050;
+
+    display: grid;
+
+    grid-template-columns:
+      repeat(3, 1fr);
+
+    min-height: 66px;
+
+    padding-bottom:
+      env(safe-area-inset-bottom);
+
+    background:
+      rgba(255, 255, 255, 0.96);
+
+    border-top:
+      1px solid var(--line);
+
+    box-shadow:
+      0 -8px 24px
+      rgba(15, 23, 42, 0.08);
+
+    backdrop-filter:
+      blur(12px);
+
+    -webkit-backdrop-filter:
+      blur(12px);
+  }
+
+
+  .mobile-nav-item {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 64px;
+
+    gap: 4px;
+
+    padding:
+      7px 4px;
+
+    color: var(--muted);
+
+    text-decoration: none;
+
+    font-size: 0.7rem;
+
+    font-weight: 750;
+
+    transition:
+      color 0.18s ease,
+      background 0.18s ease;
+  }
+
+
+  .mobile-nav-item i {
+    font-size: 1.3rem;
+
+    line-height: 1;
+  }
+
+
+  .mobile-nav-item:hover,
+  .mobile-nav-item:focus {
+    color: var(--brand);
+
+    text-decoration: none;
+  }
+
+
+  .mobile-nav-item.active {
+    color: var(--brand);
+
+    background:
+      rgba(0, 106, 113, 0.08);
+  }
+
+
+  .mobile-nav-item.active i {
+    transform: translateY(-1px);
+  }
+
+
+  /* ===================================================
+     FOOTER
+     LA BARRA MOVIL LO REEMPLAZA
+  ==================================================== */
+
+  .app-footer {
+    display: none;
+  }
+
+
+  /* ===================================================
+     LOGIN
+     NO UTILIZA LA BARRA INFERIOR
+  ==================================================== */
+
+  .auth-body {
+    padding: 18px;
+  }
+
+  .auth-card {
+    padding: 22px;
+  }
+
 }
